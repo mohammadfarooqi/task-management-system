@@ -1,2 +1,6 @@
-packages: 
-  - "packages/*"
+packages:
+  - 'packages/*'
+  - 'api'
+  - 'api-e2e'
+  - 'data'
+  - 'auth'
