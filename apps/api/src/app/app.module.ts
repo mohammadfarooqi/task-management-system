@@ -23,8 +23,7 @@ import { AuthController } from './controllers/auth.controller';
 import { TaskController } from './controllers/task.controller';
 import { AuditController } from './controllers/audit.controller';
 
-// import { JwtGuard } from '../../../../libs/auth/src/lib/guards/jwt.guard';
-import { JwtGuard } from './guards/jwt.guard';
+import { JwtGuard } from '@task-management-system/auth';
 
 
 @Module({

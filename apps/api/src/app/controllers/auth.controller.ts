@@ -1,7 +1,16 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, Request } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import type { CreateUserDto, LoginDto } from '../services/auth.service';
-import { Public } from '../decorators/public.decorator';
+// import type { CreateUserDto, LoginDto } from '../services/auth.service';
+// import { Public } from '../decorators/public.decorator';
+
+// Import from shared libraries
+import {
+  CreateUserDto,
+  LoginDto,
+  ApiResponse,
+  LoginResponseDto
+} from '@task-management-system/data';
+import { Public, CurrentUser } from '@task-management-system/auth';
 
 @Controller('auth')
 export class AuthController {
@@ -9,40 +18,54 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    const user = await this.authService.register(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<any>> {
+    try {
+      const user = await this.authService.register(createUserDto);
 
-    // Remove password hash before returning
-    const { passwordHash, ...userResponse } = user;
+      // Remove password hash before returning
+      const { passwordHash, ...userResponse } = user;
 
-    return {
-      success: true,
-      data: userResponse,
-      message: 'User registered successfully',
-    };
+      return {
+        success: true,
+        data: userResponse,
+        message: 'User registered successfully',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+      };
+    }
   }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto) {
-    const result = await this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto): Promise<ApiResponse<LoginResponseDto>> {
+    try {
+      const result = await this.authService.login(loginDto);
 
-    return {
-      success: true,
-      data: result,
-      message: 'Login successful',
-    };
+      return {
+        success: true,
+        data: result,
+        message: 'Login successful',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        data: null,
+        message: error.message,
+      };
+    }
   }
 
     @Get('profile')
-    async getProfile(@Request() req: any) {
+    async getProfile(@CurrentUser() user: any): Promise<ApiResponse<any>> {
       return {
         success: true,
-        data: {
-          user: req.user,
-          message: 'This is a protected route!',
-        },
+        data: user,
+        message: 'Profile retrieved successfully',
       };
     }
 }

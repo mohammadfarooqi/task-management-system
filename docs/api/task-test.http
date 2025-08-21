@@ -3,9 +3,9 @@
 @contentType = application/json
 
 # Update these tokens after logging in as different users
-@ownerToken = YOUR_OWNER_TOKEN_HERE
-@adminToken = YOUR_ADMIN_TOKEN_HERE
-@viewerToken = YOUR_VIEWER_TOKEN_HERE
+@ownerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoib3duZXJAdGVjaGNvcnAuY29tIiwib3JnYW5pemF0aW9uSWQiOjEsInJvbGVzIjpbIk93bmVyIl0sImlhdCI6MTc1NTc4MjA0OSwiZXhwIjoxNzU1ODY4NDQ5fQ.kk0tA3MVn5n10HHnJk1hRBb776iCNdAzyYLqIILJ-W8
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AdGVjaGNvcnAuY29tIiwib3JnYW5pemF0aW9uSWQiOjEsInJvbGVzIjpbIkFkbWluIl0sImlhdCI6MTc1NTc4MjA2NSwiZXhwIjoxNzU1ODY4NDY1fQ.qpf6wC1TZ7OHO23_Wy9MtNqhTHeHU8MwOYOdV5Bm1k8
+@viewerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidmlld2VyQHRlY2hjb3JwLmNvbSIsIm9yZ2FuaXphdGlvbklkIjoxLCJyb2xlcyI6WyJWaWV3ZXIiXSwiaWF0IjoxNzU1NzgyMDg5LCJleHAiOjE3NTU4Njg0ODl9.OOYLAUjDhmfvyCT0Jd6VMHrjFz-8k9t2YTGHhiXDH5Q
 
 ### ========== LOGIN TESTS ==========
 

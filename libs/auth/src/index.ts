@@ -1,2 +1,6 @@
-export * from './lib/guards/jwt.guard.js';
-export * from './lib/decorators/public.decorator.js';
+export * from './lib/config/jwt.config';
+
+export * from './lib/decorators/public.decorator';
+export * from './lib/decorators/auth.decorators';
+
+export * from './lib/guards/jwt.guard';
