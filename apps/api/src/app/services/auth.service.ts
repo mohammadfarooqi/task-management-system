@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserService } from './user.service';
 import { User } from '../entities/user.entity';
 
-// We'll use our shared interfaces later, for now let's define locally
+// TODO: comeback and use from shared interfaces
 export interface CreateUserDto {
   email: string;
   password: string;
