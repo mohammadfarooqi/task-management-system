@@ -155,3 +155,25 @@ Authorization: Bearer {{adminToken}}
 {
   "status": "completed"
 }
+
+### ========== AUDIT LOG TESTS ==========
+
+### 21. OWNER: View audit logs (should work)
+GET {{baseUrl}}/audit-log
+Authorization: Bearer {{ownerToken}}
+
+### 22. ADMIN: View audit logs (should work)
+GET {{baseUrl}}/audit-log
+Authorization: Bearer {{adminToken}}
+
+### 23. VIEWER: Try to view audit logs (should fail - 403)
+GET {{baseUrl}}/audit-log
+Authorization: Bearer {{viewerToken}}
+
+### 24. OWNER: View audit logs with filters
+GET {{baseUrl}}/audit-log?action=task:created&limit=10
+Authorization: Bearer {{ownerToken}}
+
+### 25. ADMIN: View audit logs for specific user
+GET {{baseUrl}}/audit-log?userId=2&page=1&limit=5
+Authorization: Bearer {{adminToken}}
