@@ -46,3 +46,14 @@ Content-Type: {{contentType}}
 
 ### Test the default endpoint
 GET {{baseUrl}}
+
+### Test protected route without token (should fail with 401)
+GET {{baseUrl}}/auth/profile
+
+### Test protected route with invalid token (should fail with 401)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer invalid-token-here
+
+### Test protected route with valid token (should work)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsIm9yZ2FuaXphdGlvbklkIjoxLCJpYXQiOjE3NTU3MzkyMzYsImV4cCI6MTc1NTgyNTYzNn0.70x5m9rCsEO8N_38G-G2Vo2l76Uzy1NHe7mCj6BIBw8

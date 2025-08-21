@@ -1,1 +1,2 @@
-export * from './lib/auth.js';
+export * from './lib/guards/jwt.guard.js';
+export * from './lib/decorators/public.decorator.js';
