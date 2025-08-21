@@ -2,33 +2,55 @@
 @baseUrl = http://localhost:3000/api
 @contentType = application/json
 
-### Register a new user
-POST {{baseUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "email": "test@example.com",
-  "password": "password123",
-  "firstName": "John",
-  "lastName": "Doe",
-  "organizationId": 1
-}
-
-### Login with registered user
+### Login as OWNER (full access)
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "test@example.com",
+  "email": "owner@techcorp.com",
   "password": "password123"
 }
+
+### Login as ADMIN (can create/manage tasks)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@techcorp.com",
+  "password": "password123"
+}
+
+### Register a new VIEWER user (gets viewer role automatically)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "viewer@techcorp.com",
+  "password": "password123",
+  "firstName": "Viewer",
+  "lastName": "User",
+  "organizationId": 1
+}
+
+### Login as new VIEWER (read-only access)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "viewer@techcorp.com",
+  "password": "password123"
+}
+
+### Test protected route with any user
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer YOUR_TOKEN_HERE
 
 ### Login with wrong password (should fail)
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "test@example.com",
+  "email": "admin@techcorp.com",
   "password": "wrongpassword"
 }
 
@@ -37,23 +59,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "test@example.com",
+  "email": "admin@techcorp.com",
   "password": "password123",
-  "firstName": "Jane",
-  "lastName": "Smith",
+  "firstName": "Duplicate",
+  "lastName": "User",
   "organizationId": 1
 }
-
-### Test the default endpoint
-GET {{baseUrl}}
-
-### Test protected route without token (should fail with 401)
-GET {{baseUrl}}/auth/profile
-
-### Test protected route with invalid token (should fail with 401)
-GET {{baseUrl}}/auth/profile
-Authorization: Bearer invalid-token-here
-
-### Test protected route with valid token (should work)
-GET {{baseUrl}}/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsIm9yZ2FuaXphdGlvbklkIjoxLCJpYXQiOjE3NTU3MzkyMzYsImV4cCI6MTc1NTgyNTYzNn0.70x5m9rCsEO8N_38G-G2Vo2l76Uzy1NHe7mCj6BIBw8

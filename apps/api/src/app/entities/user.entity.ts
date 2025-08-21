@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Organization } from './organization.entity';
+import { UserRole } from './user-role.entity';
 
 @Entity('users')
 export class User {
@@ -22,6 +24,13 @@ export class User {
 
   @Column({ name: 'is_active', default: true })
   isActive!: boolean;
+
+  @ManyToOne(() => Organization, org => org.users)
+  @JoinColumn({ name: 'organization_id' })
+  organization?: Organization;
+
+  @OneToMany(() => UserRole, userRole => userRole.user)
+  userRoles?: UserRole[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

@@ -1,0 +1,157 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+# Update these tokens after logging in as different users
+@ownerToken = YOUR_OWNER_TOKEN_HERE
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+@viewerToken = YOUR_VIEWER_TOKEN_HERE
+
+### ========== LOGIN TESTS ==========
+
+### 1. Login as OWNER
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "owner@techcorp.com",
+  "password": "password123"
+}
+
+### 2. Login as ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@techcorp.com",
+  "password": "password123"
+}
+
+### 3. Create a VIEWER user first
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "viewer@techcorp.com",
+  "password": "password123",
+  "firstName": "Viewer",
+  "lastName": "User",
+  "organizationId": 1
+}
+
+### 4. Login as VIEWER
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "viewer@techcorp.com",
+  "password": "password123"
+}
+
+### ========== ADMIN/OWNER TASK TESTS (Should Work) ==========
+
+### 5. ADMIN: Create a task (should work)
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "Fix critical bug",
+  "description": "Login system is broken",
+  "priority": "high",
+  "category": "development"
+}
+
+### 6. OWNER: Create a task (should work)
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+Authorization: Bearer {{ownerToken}}
+
+{
+  "title": "Strategic planning",
+  "description": "Plan Q4 roadmap",
+  "priority": "medium",
+  "category": "planning",
+  "assignedTo": 2
+}
+
+### 7. ADMIN: View all tasks (should see all org tasks)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{adminToken}}
+
+### 8. OWNER: View all tasks (should see all tasks)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{ownerToken}}
+
+### 9. ADMIN: Update a task (should work)
+PATCH {{baseUrl}}/tasks/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "in-progress",
+  "description": "Working on this now"
+}
+
+### 10. OWNER: Delete a task (should work)
+DELETE {{baseUrl}}/tasks/1
+Authorization: Bearer {{ownerToken}}
+
+### 11. ADMIN: Get specific task (should work)
+GET {{baseUrl}}/tasks/2
+Authorization: Bearer {{adminToken}}
+
+### ========== VIEWER TESTS (Should Fail/Restrict) ==========
+
+### 12. VIEWER: Try to create task (should fail - 403)
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+Authorization: Bearer {{viewerToken}}
+
+{
+  "title": "Should not work",
+  "description": "Viewers cannot create tasks"
+}
+
+### 13. VIEWER: View tasks (should only see assigned tasks, empty if none)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{viewerToken}}
+
+### 14. VIEWER: Try to update task (should fail - 403)
+PATCH {{baseUrl}}/tasks/2
+Content-Type: {{contentType}}
+Authorization: Bearer {{viewerToken}}
+
+{
+  "status": "completed"
+}
+
+### 15. VIEWER: Try to delete task (should fail - 403)
+DELETE {{baseUrl}}/tasks/2
+Authorization: Bearer {{viewerToken}}
+
+### 16. VIEWER: Try to access specific task (should fail - 403)
+GET {{baseUrl}}/tasks/2
+Authorization: Bearer {{viewerToken}}
+
+### ========== ERROR TESTS ==========
+
+### 17. No token (should fail - 401)
+GET {{baseUrl}}/tasks
+
+### 18. Invalid token (should fail - 401)
+GET {{baseUrl}}/tasks
+Authorization: Bearer invalid-token
+
+### 19. Try to access non-existent task (should fail - 404)
+GET {{baseUrl}}/tasks/999
+Authorization: Bearer {{adminToken}}
+
+### 20. Try to update non-existent task (should fail - 404)
+PATCH {{baseUrl}}/tasks/999
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "status": "completed"
+}
