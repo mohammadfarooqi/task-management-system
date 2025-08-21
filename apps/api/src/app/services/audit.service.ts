@@ -2,17 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
-
-interface AuditLogData {
-  userId: number;
-  action: string;
-  resourceType: string;
-  resourceId?: number;
-  details?: any;
-  ipAddress?: string;
-  userAgent?: string;
-  organizationId: number;
-}
+import { AuditLogData } from '@task-management-system/data';
 
 @Injectable()
 export class AuditService {

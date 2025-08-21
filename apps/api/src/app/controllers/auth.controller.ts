@@ -1,16 +1,12 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, Request } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-// import type { CreateUserDto, LoginDto } from '../services/auth.service';
-// import { Public } from '../decorators/public.decorator';
-
-// Import from shared libraries
+import { Public, CurrentUser } from '@task-management-system/auth';
 import {
   CreateUserDto,
   LoginDto,
   ApiResponse,
   LoginResponseDto
 } from '@task-management-system/data';
-import { Public, CurrentUser } from '@task-management-system/auth';
 
 @Controller('auth')
 export class AuthController {

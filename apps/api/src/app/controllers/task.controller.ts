@@ -3,16 +3,15 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
-  UseGuards,
   Request,
   ParseIntPipe
 } from '@nestjs/common';
 import { TaskService } from '../services/task.service';
 import { AuditService } from '../services/audit.service';
-import type { CreateTaskDto, UpdateTaskDto } from '../services/task.service';
+import { CreateTaskDto, ReplaceTaskDto } from '@task-management-system/data';
 
 @Controller('tasks')
 export class TaskController {
@@ -101,30 +100,30 @@ export class TaskController {
     };
   }
 
-  @Patch(':id')
-  async update(
+  @Put(':id')
+  async replace(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateTaskDto: UpdateTaskDto,
+    @Body() replaceTaskDto: ReplaceTaskDto,
     @Request() req: any
   ) {
-    const task = await this.taskService.update(
+    const task = await this.taskService.replace(
       id,
-      updateTaskDto,
+      replaceTaskDto,
       req.user.sub,
       req.user.organizationId,
       req.user.roles || []
     );
 
-    // log task update
+    // log task replacement
     await this.auditService.log({
       userId: req.user.sub,
-      action: 'task:updated',
+      action: 'task:replaced',
       resourceType: 'task',
       resourceId: task.id,
       organizationId: req.user.organizationId,
       details: {
         title: task.title,
-        changes: updateTaskDto
+        fullReplacement: replaceTaskDto
       },
       ipAddress: req.ip,
       userAgent: req.get('User-Agent'),
@@ -133,7 +132,7 @@ export class TaskController {
     return {
       success: true,
       data: task,
-      message: 'Task updated successfully',
+      message: 'Task replaced successfully',
     };
   }
 

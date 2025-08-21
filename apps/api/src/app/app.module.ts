@@ -23,7 +23,7 @@ import { AuthController } from './controllers/auth.controller';
 import { TaskController } from './controllers/task.controller';
 import { AuditController } from './controllers/audit.controller';
 
-import { JwtGuard } from '@task-management-system/auth';
+import { JWT_CONFIG, JwtGuard } from '@task-management-system/auth';
 
 
 @Module({
@@ -56,8 +56,8 @@ import { JwtGuard } from '@task-management-system/auth';
     ]),
     JwtModule.register({
       global: true, // Make JWT service available everywhere
-      secret: process.env.JWT_SECRET || 'super-duper-secret-key-1-2-3',
-      signOptions: { expiresIn: '24h' },
+      secret: JWT_CONFIG.secret,
+      signOptions: { expiresIn: JWT_CONFIG.expiresIn },
     }),
   ],
   controllers: [AppController, AuthController, TaskController, AuditController],

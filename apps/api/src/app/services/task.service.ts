@@ -2,26 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task, TaskStatus, TaskPriority } from '../entities/task.entity';
-
-// Simple DTOs for tasks
-export interface CreateTaskDto {
-  title: string;
-  description?: string;
-  priority?: TaskPriority;
-  category?: string;
-  dueDate?: Date;
-  assignedTo?: number;
-}
-
-export interface UpdateTaskDto {
-  title?: string;
-  description?: string;
-  status?: TaskStatus;
-  priority?: TaskPriority;
-  category?: string;
-  dueDate?: Date;
-  assignedTo?: number;
-}
+import { CreateTaskDto, ReplaceTaskDto, hasRolePermission, canViewAllOrgTasks, canEditSpecificTask, RoleType } from '@task-management-system/data';
 
 @Injectable()
 export class TaskService {
@@ -37,12 +18,18 @@ export class TaskService {
     }
 
     // Only Admin and Owner can create tasks
-    if (!userRoles.includes('Owner') && !userRoles.includes('Admin')) {
+    if (!hasRolePermission(userRoles, RoleType.ADMIN)) {
       throw new ForbiddenException('Only Admins and Owners can create tasks');
     }
 
     const task = this.taskRepository.create({
-      ...createTaskDto,
+      title: createTaskDto.title,
+      description: createTaskDto.description,
+      status: (createTaskDto.status as TaskStatus) || TaskStatus.PENDING,
+      priority: (createTaskDto.priority as TaskPriority) || TaskPriority.MEDIUM,
+      category: createTaskDto.category,
+      dueDate: createTaskDto.dueDate,
+      assignedTo: createTaskDto.assignedTo,
       createdBy: userId,
       organizationId,
     });
@@ -63,7 +50,7 @@ export class TaskService {
       .where('task.organizationId = :organizationId', { organizationId });
 
     // role-based filtering
-    if (!userRoles.includes('Owner') && !userRoles.includes('Admin')) {
+    if (!canViewAllOrgTasks(userRoles)) {
       // Viewers can only see tasks they created or are assigned to
       queryBuilder.andWhere(
         '(task.createdBy = :userId OR task.assignedTo = :userId)',
@@ -92,8 +79,7 @@ export class TaskService {
     // Check if user can access this task
     const canAccess =
       task.organizationId === organizationId && // Same org
-      (userRoles.includes('Owner') ||
-       userRoles.includes('Admin') ||
+      (canViewAllOrgTasks(userRoles) ||
        task.createdBy === userId ||
        task.assignedTo === userId);
 
@@ -104,29 +90,35 @@ export class TaskService {
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto, userId: number, organizationId: number, userRoles: string[]): Promise<Task> {
+  async replace(id: number, replaceTaskDto: ReplaceTaskDto, userId: number, organizationId: number, userRoles: string[]): Promise<Task> {
     const task = await this.findOne(id, userId, organizationId, userRoles);
 
-    // Check if user can update this task
-    const canUpdate = userRoles.includes('Owner') ||
-                     userRoles.includes('Admin') ||
-                     task.createdBy === userId;
+    // Check if user can replace this task
+    const canReplace = canEditSpecificTask(userRoles, task.createdBy, userId);
 
-    if (!canUpdate) {
-      throw new ForbiddenException('You can only update tasks you created');
+    if (!canReplace) {
+      throw new ForbiddenException('You can only replace tasks you created');
     }
 
-    await this.taskRepository.update(id, updateTaskDto);
+    // Full replacement - update all fields
+    await this.taskRepository.update(id, {
+      title: replaceTaskDto.title,
+      description: replaceTaskDto.description,
+      status: replaceTaskDto.status as TaskStatus,
+      priority: replaceTaskDto.priority as TaskPriority,
+      category: replaceTaskDto.category,
+      dueDate: replaceTaskDto.dueDate,
+      assignedTo: replaceTaskDto.assignedTo
+    });
+    
     return this.findOne(id, userId, organizationId, userRoles);
   }
 
   async remove(id: number, userId: number, organizationId: number, userRoles: string[]): Promise<void> {
     const task = await this.findOne(id, userId, organizationId, userRoles);
 
-    // Check if user can delete this task
-    const canDelete = userRoles.includes('Owner') ||
-                     userRoles.includes('Admin') ||
-                     task.createdBy === userId;
+    // Check if user can delete this task  
+    const canDelete = canEditSpecificTask(userRoles, task.createdBy, userId);
 
     if (!canDelete) {
       throw new ForbiddenException('You can only delete tasks you created');

@@ -7,26 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role, RoleType } from '../entities/role.entity';
 import { UserRole } from '../entities/user-role.entity';
-
-// TODO: comeback and use from shared interfaces
-export interface CreateUserDto {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  organizationId: number;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  user: Omit<User, 'passwordHash'>;
-  accessToken: string;
-  roles: string[];
-}
+import { CreateUserDto, LoginDto, LoginResponseDto } from '@task-management-system/data';
 
 @Injectable()
 export class AuthService {
@@ -77,7 +58,7 @@ export class AuthService {
     return user;
   }
 
-  async login(loginDto: LoginDto): Promise<LoginResponse> {
+  async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     // Find user
     const user = await this.userService.findByEmail(loginDto.email);
     if (!user || !user.isActive) {
