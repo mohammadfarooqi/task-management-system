@@ -1,0 +1,20 @@
+{
+  "name": "@task-management-system/api",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "tags": ["backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "options": {
+        "webpackConfig": "apps/api/webpack.config.js"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node apps/api/src/main.ts"
+      }
+    }
+  }
+}
