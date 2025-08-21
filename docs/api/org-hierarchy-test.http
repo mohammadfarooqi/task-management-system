@@ -1,0 +1,144 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+# NOTE: Get these tokens by logging in first
+@parentOrgOwnerToken = 
+@parentOrgAdminToken = 
+@childOrgUserToken = 
+
+### ========== SETUP: Create Organizations & Users ==========
+
+### 1. Login as Parent Org Owner
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "owner@techcorp.com",
+  "password": "password123"
+}
+
+### 2. Login as Parent Org Admin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@techcorp.com",
+  "password": "password123"
+}
+
+### 3. Create a user in child organization
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "developer@techcorp.com",
+  "password": "password123",
+  "firstName": "Dev",
+  "lastName": "User",
+  "organizationId": 2
+}
+
+### 4. Login as Child Org User
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "developer@techcorp.com",
+  "password": "password123"
+}
+
+### ========== TEST: Parent Org Can Create Tasks for Child Org ==========
+
+### 5. Parent Org Admin: Create task for child org (assignedTo child org user)
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+Authorization: Bearer {{parentOrgAdminToken}}
+
+{
+  "title": "Complete sprint tasks",
+  "description": "Finish all tasks for current sprint",
+  "priority": "high",
+  "category": "development",
+  "assignedTo": 3
+}
+
+### 6. Parent Org Owner: Create task for parent org
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+Authorization: Bearer {{parentOrgOwnerToken}}
+
+{
+  "title": "Review quarterly budget",
+  "description": "Review and approve Q4 budget",
+  "priority": "high",
+  "category": "planning"
+}
+
+### ========== TEST: Organization Hierarchy Task Visibility ==========
+
+### 7. Parent Org Admin: View all tasks (should see both parent and child org tasks)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{parentOrgAdminToken}}
+
+### 8. Child Org User: View tasks (should only see assigned tasks)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{childOrgUserToken}}
+
+### 9. Parent Org Owner: View all tasks (should see all tasks in hierarchy)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{parentOrgOwnerToken}}
+
+### ========== TEST: Cross-Organization Task Management ==========
+
+### 10. Parent Org Admin: Get specific child org task (should work)
+GET {{baseUrl}}/tasks/1
+Authorization: Bearer {{parentOrgAdminToken}}
+
+### 11. Child Org User: Try to get parent org task (should fail)
+GET {{baseUrl}}/tasks/2
+Authorization: Bearer {{childOrgUserToken}}
+
+### 12. Parent Org Admin: Update child org task (should work)
+PUT {{baseUrl}}/tasks/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{parentOrgAdminToken}}
+
+{
+  "title": "Complete sprint tasks - Updated by Parent Admin",
+  "description": "Updated: Finish all tasks for current sprint",
+  "status": "in-progress",
+  "priority": "high",
+  "category": "development"
+}
+
+### 13. Child Org User: Try to update parent org task (should fail)
+PUT {{baseUrl}}/tasks/2
+Content-Type: {{contentType}}
+Authorization: Bearer {{childOrgUserToken}}
+
+{
+  "title": "Should not work",
+  "description": "Child org cannot update parent org tasks",
+  "status": "completed",
+  "priority": "low",
+  "category": "general"
+}
+
+### 14. Parent Org Admin: Delete child org task (should work)
+DELETE {{baseUrl}}/tasks/1
+Authorization: Bearer {{parentOrgAdminToken}}
+
+### 15. Child Org User: Try to delete parent org task (should fail)
+DELETE {{baseUrl}}/tasks/2
+Authorization: Bearer {{childOrgUserToken}}
+
+### ========== TEST: Audit Logs for Cross-Org Operations ==========
+
+### 16. Parent Org Owner: View audit logs (should see all hierarchy actions)
+GET {{baseUrl}}/audit-log
+Authorization: Bearer {{parentOrgOwnerToken}}
+
+### 17. Parent Org Admin: View filtered audit logs
+GET {{baseUrl}}/audit-log?action=task:created&limit=10
+Authorization: Bearer {{parentOrgAdminToken}}

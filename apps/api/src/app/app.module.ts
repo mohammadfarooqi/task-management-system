@@ -18,6 +18,7 @@ import { AuthService } from './services/auth.service';
 import { TaskService } from './services/task.service';
 import { AuditService } from './services/audit.service';
 import { SeedService } from './services/seed.service';
+import { OrganizationService } from './services/organization.service';
 
 import { AuthController } from './controllers/auth.controller';
 import { TaskController } from './controllers/task.controller';
@@ -68,6 +69,7 @@ import { JWT_CONFIG, JwtGuard } from '@task-management-system/auth';
     TaskService,
     AuditService,
     SeedService,
+    OrganizationService,
     {
       provide: APP_GUARD,
       useClass: JwtGuard, // Apply JWT guard globally to all routes
