@@ -1,0 +1,48 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "organizationId": 1
+}
+
+### Login with registered user
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login with wrong password (should fail)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "wrongpassword"
+}
+
+### Try to register duplicate user (should fail)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "organizationId": 1
+}
+
+### Test the default endpoint
+GET {{baseUrl}}

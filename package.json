@@ -2,7 +2,14 @@
   "name": "@task-management-system/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start:api": "npx nx serve api",
+    "build:api": "npx nx build api",
+    "test:api": "npx nx test api",
+    "dev": "npx nx serve api",
+    "graph": "npx nx graph",
+    "reset": "npx nx reset"
+  },
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.8.0",
