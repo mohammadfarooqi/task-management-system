@@ -10,7 +10,7 @@ export class JwtGuard implements CanActivate {
     private reflector: Reflector
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     // Check if route is marked as public
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -30,7 +30,9 @@ export class JwtGuard implements CanActivate {
 
     try {
       // Verify and decode the JWT token
-      const payload = this.jwtService.verify(token);
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET || 'your-secret-key'
+      });
 
       // Attach user info to request for use in controllers
       request.user = payload;
@@ -41,7 +43,14 @@ export class JwtGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    const authHeader = request.headers.authorization;
+    if (!authHeader) return undefined;
+    
+    // Trim and split, handling extra spaces
+    const parts = authHeader.trim().split(/\s+/);
+    if (parts.length !== 2) return undefined;
+    
+    const [type, token] = parts;
     return type === 'Bearer' ? token : undefined;
   }
 }

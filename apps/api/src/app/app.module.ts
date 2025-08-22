@@ -34,7 +34,7 @@ import { JWT_CONFIG, JwtGuard } from '@task-management-system/auth';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: './data/database.sqlite',
+      database: process.env.DATABASE_PATH || './data/database.sqlite',
       entities: [
         User,
         Organization,
