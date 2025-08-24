@@ -323,30 +323,37 @@ npm run test:affected
 ### Component Generation
 
 #### Angular Components (Dashboard)
+
+> **Note**: For Angular generators in Nx, you must specify the full path where you want the component/service/etc. to be created.
+
 ```bash
-# Generate a new component (shortcut for dashboard)
-npm run g:dash-component -- [name] --path=apps/dashboard/src/app/components
+# Generate component (specify full path)
+npx nx g @nx/angular:component apps/dashboard/src/app/components/[name] --standalone=false
 
-# Generate a service (shortcut for dashboard)
-npm run g:dash-service -- [name] --path=apps/dashboard/src/app/services
+# Generate service (specify full path)
+npx nx g @nx/angular:service apps/dashboard/src/app/services/[name]
 
-# Generate a guard (shortcut for dashboard)
-npm run g:dash-guard -- [name] --path=apps/dashboard/src/app/guards
+# Generate guard (specify full path)
+npx nx g @nx/angular:guard apps/dashboard/src/app/guards/[name]
+
+# Generate directive (specify full path)
+npx nx g @nx/angular:directive apps/dashboard/src/app/directives/[name]
+
+# Generate pipe (specify full path)
+npx nx g @nx/angular:pipe apps/dashboard/src/app/pipes/[name]
+
+# Generate module (specify full path)
+npx nx g @nx/angular:module apps/dashboard/src/app/modules/[name]
 
 # Examples:
-# Generate auth service
-npm run g:dash-service -- auth --path=apps/dashboard/src/app/services
+# Component in subdirectory
+npx nx g @nx/angular:component apps/dashboard/src/app/components/tasks/task-list --standalone=false
 
-# Generate login component in auth folder
-npm run g:dash-component -- login --path=apps/dashboard/src/app/components/auth --standalone=false --style=scss
+# Service
+npx nx g @nx/angular:service apps/dashboard/src/app/services/task
 
-# Full syntax for any project:
-npm run g:component -- [name] --project=dashboard --path=apps/dashboard/src/app/components
-npm run g:service -- [name] --project=dashboard --path=apps/dashboard/src/app/services
-npm run g:directive -- [name] --project=dashboard --path=apps/dashboard/src/app/directives
-npm run g:pipe -- [name] --project=dashboard --path=apps/dashboard/src/app/pipes
-npm run g:guard -- [name] --project=dashboard --path=apps/dashboard/src/app/guards
-npm run g:module -- [name] --project=dashboard --path=apps/dashboard/src/app/modules
+# Guard
+npx nx g @nx/angular:guard apps/dashboard/src/app/guards/auth
 ```
 
 #### NestJS Components (API)

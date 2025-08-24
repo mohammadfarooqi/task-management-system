@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { Public, CurrentUser } from '@task-management-system/auth';
 import {
@@ -24,11 +24,9 @@ export class AuthController {
         message: 'Login successful',
       };
     } catch (error: any) {
-      return {
-        success: false,
-        data: undefined,
-        message: error.message,
-      };
+      // Let NestJS handle the error response with proper status code
+      // The auth service already throws UnauthorizedException for invalid credentials
+      throw error;
     }
   }
 

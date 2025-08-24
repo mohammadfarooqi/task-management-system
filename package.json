@@ -45,11 +45,6 @@
     "g:guard": "npx nx g @nx/angular:guard",
     "g:module": "npx nx g @nx/angular:module",
     
-    "// Generators - Angular Dashboard Shortcuts //": "",
-    "g:dash-component": "npx nx g @nx/angular:component --project=dashboard",
-    "g:dash-service": "npx nx g @nx/angular:service --project=dashboard",
-    "g:dash-guard": "npx nx g @nx/angular:guard --project=dashboard",
-    
     "// Generators - NestJS //": "",
     "g:api-module": "npx nx g @nx/nest:module",
     "g:api-controller": "npx nx g @nx/nest:controller",

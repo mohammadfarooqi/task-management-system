@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-// import { Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    // private router: Router
+    private router: Router
   ) {}
 
   onSubmit() {
@@ -31,15 +31,25 @@ export class LoginComponent {
       next: (response) => {
         console.log('Login successful:', response);
         this.isLoading = false;
-        // TODO: Navigate to dashboard after we create it
-        if (response.data) {
-          alert('Login successful! Role: ' + response.data.role);
+
+        if (response.success && response.data) {
+          console.log('Login successful, navigating to dashboard');
+          this.router.navigate(['/dashboard']);
+        } else {
+          // Handle case where API returns 200 but success: false
+          this.errorMessage = response.message || 'Login failed. Please check your credentials.';
+          console.log('Login failed:', response.message);
         }
       },
       error: (error) => {
         console.error('Login error:', error);
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Login failed. Please try again.';
+
+        if (error.status === 401) {
+          this.errorMessage = 'Invalid email or password.';
+        } else {
+          this.errorMessage = error.error?.message || 'Login failed. Please try again.';
+        }
       }
     });
   }
