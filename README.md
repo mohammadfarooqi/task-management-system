@@ -232,15 +232,22 @@ BCRYPT_ROUNDS=12
 
 ## 🏃‍♂️ Running the Application
 
+### Quick Start
+```bash
+# Start both API and Dashboard together (recommended)
+npm start
+# or
+npm run dev
+```
+
 ### Development Mode
 
 #### Backend (API)
 ```bash
-# Run the API with auto-reload
-npm run dev
-
-# Or using NX
+# Run the API server
 npm run start:api
+# or
+npm run dev:api
 ```
 
 The API will be available at `http://localhost:3000/api`
@@ -249,34 +256,43 @@ The API will be available at `http://localhost:3000/api`
 ```bash
 # Run the Angular dashboard
 npm run start:dashboard
+# or
+npm run dev:dashboard
 ```
 
 The dashboard will be available at `http://localhost:4200`
 
-#### Run Both Together
-```bash
-# Start both API and dashboard in parallel
-npm run start:all
-```
-
 ### Production Build
 
-#### Backend
+#### Build Everything
+```bash
+# Build all projects
+npm run build
+
+# Build with production optimizations
+npm run build:prod
+```
+
+#### Build Individual Projects
 ```bash
 # Build the API
 npm run build:api
 
-# Run the built application
-node dist/apps/api/main.js
-```
-
-#### Frontend
-```bash
-# Build the dashboard for production
+# Build the dashboard
 npm run build:dashboard
 
-# The built files will be in dist/apps/dashboard
-# Serve with any static file server
+# Build libraries
+npm run build:libs
+```
+
+#### Running Production Build
+```bash
+# After building, run the API
+node dist/apps/api/main.js
+
+# Serve the dashboard (dist/apps/dashboard)
+# Use any static file server like nginx, serve, or http-server
+npx serve dist/apps/dashboard
 ```
 
 ## 🧪 Testing
@@ -284,16 +300,13 @@ npm run build:dashboard
 ### Run Unit Tests
 ```bash
 # Run all tests across the monorepo
-npm run test
+npm test
 
-# Run API tests only
-npm run test:api
-
-# Run Dashboard tests only  
-npm run test:dashboard
-
-# Run Auth library tests
-npm run test:auth
+# Run specific project tests
+npm run test:api          # API tests
+npm run test:dashboard    # Dashboard tests
+npm run test:auth         # Auth library tests
+npm run test:data         # Data library tests
 
 # Run tests with coverage
 npm run test:coverage
@@ -302,7 +315,7 @@ npm run test:coverage
 npm run test:watch
 
 # Test only affected projects (based on git changes)
-npm run affected:test
+npm run test:affected
 ```
 
 ## 🛠️ Development Commands
@@ -312,25 +325,25 @@ npm run affected:test
 #### Angular Components (Dashboard)
 ```bash
 # Generate a new component
-npm run g:component -- --name=task-list --project=dashboard
+npm run g:component apps/dashboard/src/app/components/[name]
 
-# Generate in a specific folder
-npm run g:component -- --name=task-item --project=dashboard --path=apps/dashboard/src/app/components
+# Example: Generate login component in auth folder
+npm run g:component apps/dashboard/src/app/components/auth/login -- --standalone=false --style=scss
 
 # Generate a service
-npm run g:service -- --name=task --project=dashboard
+npm run g:service apps/dashboard/src/app/services/[name]
 
 # Generate a directive
-npm run g:directive -- --name=highlight --project=dashboard
+npm run g:directive apps/dashboard/src/app/directives/[name]
 
 # Generate a pipe
-npm run g:pipe -- --name=truncate --project=dashboard
+npm run g:pipe apps/dashboard/src/app/pipes/[name]
 
 # Generate a guard
-npm run g:guard -- --name=auth --project=dashboard
+npm run g:guard apps/dashboard/src/app/guards/[name]
 
 # Generate a module
-npm run g:module -- --name=shared --project=dashboard
+npm run g:module apps/dashboard/src/app/modules/[name]
 ```
 
 #### NestJS Components (API)
@@ -356,8 +369,11 @@ npm run g:api-resource -- --name=projects --project=api
 npm run lint
 
 # Lint specific project
-npm run lint:dashboard
 npm run lint:api
+npm run lint:dashboard
+
+# Auto-fix linting issues
+npm run lint:fix
 
 # Lint only affected projects
 npm run affected:lint
@@ -372,17 +388,23 @@ npm run format
 npm run format:check
 ```
 
+#### Type Checking
+```bash
+# Run TypeScript type checking
+npm run typecheck
+```
+
 ### Build & Clean
 
 ```bash
-# Build only affected projects
-npm run affected:build
-
 # View project dependency graph
 npm run graph
 
 # Reset NX cache
 npm run reset
+
+# Build only affected projects
+npm run affected:build
 
 # Clean build artifacts and cache
 npm run clean
@@ -392,20 +414,23 @@ npm run clean:full
 
 # Clean install dependencies
 npm run install:clean
+
+# Reset database (removes SQLite file)
+npm run db:reset
 ```
 
 ### Example Workflows
 
-#### Creating a New Task Component
+#### Creating a New Component (e.g., Login)
 ```bash
-# 1. Generate the component
-npm run g:component -- --name=task-card --project=dashboard --path=apps/dashboard/src/app/components
+# 1. Generate the component in a specific folder structure
+npm run g:component apps/dashboard/src/app/components/auth/login -- --standalone=false --style=scss --module=apps/dashboard/src/app/app.module.ts
 
-# 2. Generate a service for it
-npm run g:service -- --name=task --project=dashboard --path=apps/dashboard/src/app/services
+# 2. Generate a service for authentication
+npm run g:service apps/dashboard/src/app/services/auth
 
 # 3. Start the dev server to see it
-npm run start:dashboard
+npm run dev:dashboard
 ```
 
 #### Creating a New API Endpoint
@@ -779,10 +804,12 @@ task-management-system/
 │       ├── src/
 │       │   ├── app/
 │       │   │   ├── components/
+│       │   │   │   └── auth/
+│       │   │   │       └── login/  # Login component
 │       │   │   ├── services/
-│       │   │   ├── app.html
-│       │   │   ├── app.ts
-│       │   │   ├── app-module.ts
+│       │   │   ├── app.component.html
+│       │   │   ├── app.component.ts
+│       │   │   ├── app.module.ts
 │       │   │   └── app.routes.ts
 │       │   ├── styles.scss  # Global styles with Tailwind directives
 │       │   └── main.ts
@@ -867,7 +894,8 @@ Note: All users must be created via authenticated endpoints:
 ### Frontend Development (In Progress)
 - [x] Angular Dashboard Application (Setup Complete)
 - [x] Tailwind CSS v3 Integration
-- [ ] User Authentication UI (Login/Logout)
+- [x] Login Component Structure (components/auth/login)
+- [ ] User Authentication UI Implementation
 - [ ] Task Management Interface (CRUD)
 - [ ] Organization Management Dashboard
 - [ ] Role-based UI Components
