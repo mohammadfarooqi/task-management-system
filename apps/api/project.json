@@ -13,7 +13,7 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx ts-node apps/api/src/main.ts"
+        "command": "npx ts-node -r tsconfig-paths/register --transpile-only apps/api/src/main.ts"
       }
     },
     "test": {

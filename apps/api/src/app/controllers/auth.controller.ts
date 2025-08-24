@@ -26,7 +26,7 @@ export class AuthController {
     } catch (error: any) {
       return {
         success: false,
-        data: null,
+        data: undefined,
         message: error.message,
       };
     }
