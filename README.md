@@ -263,11 +263,6 @@ npm run test:coverage
 npm run test:watch
 ```
 
-### Run E2E Tests
-```bash
-npx nx e2e api-e2e
-```
-
 ## 📚 API Documentation
 
 ### Authentication Endpoints
@@ -513,7 +508,6 @@ task-management-system/
 │   │   │   │   └── app.module.ts
 │   │   │   └── main.ts
 │   │   └── project.json
-│   └── api-e2e/             # E2E tests
 ├── libs/
 │   ├── auth/                # Authentication library
 │   │   └── src/
