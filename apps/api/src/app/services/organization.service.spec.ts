@@ -110,7 +110,7 @@ describe('OrganizationService', () => {
       expect(result).toEqual([1, 2, 3]);
     });
 
-    it('should return child org with parent and siblings', async () => {
+    it('should return child org with parent but NOT siblings', async () => {
       const parentWithChildren = {
         ...mockParentOrg,
         children: [mockChildOrg1, mockChildOrg2],
@@ -119,13 +119,13 @@ describe('OrganizationService', () => {
       // First call returns the child org
       mockOrganizationRepository.findOne
         .mockResolvedValueOnce(mockChildOrg1)
-        .mockResolvedValueOnce(parentWithChildren);
+        .mockResolvedValueOnce(mockParentOrg); // Parent without children relation
 
       const result = await service.getOrganizationHierarchyIds(2);
 
       expect(result).toContain(1); // Parent
       expect(result).toContain(2); // Self
-      expect(result).toContain(3); // Sibling
+      expect(result).not.toContain(3); // Sibling should NOT be included
     });
 
     it('should return only self ID when org not found', async () => {
@@ -165,6 +165,24 @@ describe('OrganizationService', () => {
 
       expect(result).toEqual([1, 2]); // Should remove duplicate
     });
+
+    it('should not include sibling organizations in hierarchy', async () => {
+      // Test that sibling organizations are NOT included
+      const sibling1 = { ...mockChildOrg1, id: 2, parentId: 1 };
+      const sibling2 = { ...mockChildOrg2, id: 3, parentId: 1 };
+
+      // When org 2 queries hierarchy, it should NOT get org 3
+      mockOrganizationRepository.findOne
+        .mockResolvedValueOnce(sibling1) // First call returns sibling1
+        .mockResolvedValueOnce(mockParentOrg); // Second call returns parent (no siblings)
+
+      const result = await service.getOrganizationHierarchyIds(2);
+
+      expect(result).toContain(2); // Self
+      expect(result).toContain(1); // Parent
+      expect(result).not.toContain(3); // Should NOT contain sibling
+      expect(result).toHaveLength(2); // Only self and parent
+    });
   });
 
   describe('canAccessOrganization', () => {
@@ -189,18 +207,24 @@ describe('OrganizationService', () => {
     });
 
     it('should return true when child can access parent', async () => {
-      const parentWithChildren = {
-        ...mockParentOrg,
-        children: [mockChildOrg1, mockChildOrg2],
-      };
-
       mockOrganizationRepository.findOne
         .mockResolvedValueOnce(mockChildOrg1)
-        .mockResolvedValueOnce(parentWithChildren);
+        .mockResolvedValueOnce(mockParentOrg);
 
       const result = await service.canAccessOrganization(2, 1);
 
       expect(result).toBe(true);
+    });
+
+    it('should return false when child tries to access sibling', async () => {
+      // Child org 2 trying to access sibling org 3
+      mockOrganizationRepository.findOne
+        .mockResolvedValueOnce(mockChildOrg1) // org 2
+        .mockResolvedValueOnce(mockParentOrg); // parent without siblings
+
+      const result = await service.canAccessOrganization(2, 3);
+
+      expect(result).toBe(false);
     });
 
     it('should return false when no relationship exists', async () => {
@@ -261,6 +285,72 @@ describe('OrganizationService', () => {
       mockOrganizationRepository.findOne.mockResolvedValue(orgWithEmptyChildren);
 
       const result = await service.isParentOrganization(1);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('isChildOrganization', () => {
+    it('should return true when target is a child of parent', async () => {
+      const parentWithChildren = {
+        ...mockParentOrg,
+        children: [mockChildOrg1, mockChildOrg2],
+      };
+
+      mockOrganizationRepository.findOne.mockResolvedValue(parentWithChildren);
+
+      const result = await service.isChildOrganization(1, 2);
+
+      expect(result).toBe(true);
+      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['children'],
+      });
+    });
+
+    it('should return false when target is not a child of parent', async () => {
+      const parentWithChildren = {
+        ...mockParentOrg,
+        children: [mockChildOrg1],
+      };
+
+      mockOrganizationRepository.findOne.mockResolvedValue(parentWithChildren);
+
+      const result = await service.isChildOrganization(1, 3);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when parent has no children', async () => {
+      const parentWithNoChildren = {
+        ...mockParentOrg,
+        children: [],
+      };
+
+      mockOrganizationRepository.findOne.mockResolvedValue(parentWithNoChildren);
+
+      const result = await service.isChildOrganization(1, 2);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when parent org not found', async () => {
+      mockOrganizationRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.isChildOrganization(999, 2);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when parent children is undefined', async () => {
+      const parentWithoutChildrenProperty = {
+        ...mockParentOrg,
+        children: undefined,
+      };
+
+      mockOrganizationRepository.findOne.mockResolvedValue(parentWithoutChildrenProperty);
+
+      const result = await service.isChildOrganization(1, 2);
 
       expect(result).toBe(false);
     });

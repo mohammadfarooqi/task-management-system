@@ -1,0 +1,170 @@
+### Test User Creation Endpoints
+@baseUrl = http://localhost:3000/api
+@ownerToken = <OWNER_JWT_TOKEN>
+@adminToken = <ADMIN_JWT_TOKEN>
+@viewerToken = <VIEWER_JWT_TOKEN>
+
+### Login as Owner to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner@techcorp.com",
+  "password": "password123"
+}
+
+### Login as Admin to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@techcorp.com",
+  "password": "password123"
+}
+
+### Login as Viewer to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "viewer@techcorp.com",
+  "password": "password123"
+}
+
+### Owner creates an Admin in same org
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "newadmin@example.com",
+  "password": "password123",
+  "firstName": "New",
+  "lastName": "Admin",
+  "organizationId": 1,
+  "roleType": "Admin"
+}
+
+### Owner creates a Viewer in same org
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "newviewer@example.com",
+  "password": "password123",
+  "firstName": "New",
+  "lastName": "Viewer",
+  "organizationId": 1,
+  "roleType": "Viewer"
+}
+
+### Owner creates an Owner in same org (should work)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "newowner@example.com",
+  "password": "password123",
+  "firstName": "New",
+  "lastName": "Owner",
+  "organizationId": 1,
+  "roleType": "Owner"
+}
+
+### Admin creates an Admin in same org (should work)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "email": "anotheradmin@example.com",
+  "password": "password123",
+  "firstName": "Another",
+  "lastName": "Admin",
+  "organizationId": 1,
+  "roleType": "Admin"
+}
+
+### Admin tries to create an Owner (should fail)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "email": "failowner@example.com",
+  "password": "password123",
+  "firstName": "Fail",
+  "lastName": "Owner",
+  "organizationId": 1,
+  "roleType": "Owner"
+}
+
+### Viewer tries to create any user (should fail)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{viewerToken}}
+
+{
+  "email": "failuser@example.com",
+  "password": "password123",
+  "firstName": "Fail",
+  "lastName": "User",
+  "organizationId": 1,
+  "roleType": "Viewer"
+}
+
+### Parent Org Owner creates Admin in child org (should work)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "childadmin@example.com",
+  "password": "password123",
+  "firstName": "Child",
+  "lastName": "Admin",
+  "organizationId": 2,
+  "roleType": "Admin"
+}
+
+### Parent Org Owner tries to create Owner in child org (should fail)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "childowner@example.com",
+  "password": "password123",
+  "firstName": "Child",
+  "lastName": "Owner",
+  "organizationId": 2,
+  "roleType": "Owner"
+}
+
+### Create user without roleType (should default to Viewer)
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{ownerToken}}
+
+{
+  "email": "defaultrole@example.com",
+  "password": "password123",
+  "firstName": "Default",
+  "lastName": "Role",
+  "organizationId": 1
+}
+
+### Create user without authentication (should fail - no public registration)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "publicuser@example.com",
+  "password": "password123",
+  "firstName": "Public",
+  "lastName": "User",
+  "organizationId": 1,
+  "roleType": "Viewer"
+}

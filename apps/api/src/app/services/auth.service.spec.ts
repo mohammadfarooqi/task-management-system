@@ -50,6 +50,7 @@ describe('AuthService', () => {
     create: jest.fn(),
     save: jest.fn(),
     find: jest.fn(),
+    findOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -130,6 +131,72 @@ describe('AuthService', () => {
       );
       expect(userService.create).not.toHaveBeenCalled();
     });
+
+    it('should assign specified roleType when provided', async () => {
+      const registerDto = {
+        email: 'admin@example.com',
+        password: 'password123',
+        firstName: 'Admin',
+        lastName: 'User',
+        organizationId: 1,
+        roleType: RoleType.ADMIN,
+      };
+
+      mockUserService.findByEmail.mockResolvedValue(null);
+      mockUserService.create.mockResolvedValue({
+        ...mockUser,
+        email: registerDto.email,
+      });
+      mockRoleRepository.findOne.mockResolvedValue({
+        id: 2,
+        name: RoleType.ADMIN,
+      });
+      mockUserRoleRepository.save.mockResolvedValue({});
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
+
+      await service.register(registerDto);
+
+      expect(mockRoleRepository.findOne).toHaveBeenCalledWith({
+        where: { name: RoleType.ADMIN }
+      });
+      expect(mockUserRoleRepository.save).toHaveBeenCalledWith({
+        userId: mockUser.id,
+        roleId: 2,
+      });
+    });
+
+    it('should default to VIEWER role when roleType not specified', async () => {
+      const registerDto = {
+        email: 'default@example.com',
+        password: 'password123',
+        firstName: 'Default',
+        lastName: 'User',
+        organizationId: 1,
+        // roleType not specified
+      };
+
+      mockUserService.findByEmail.mockResolvedValue(null);
+      mockUserService.create.mockResolvedValue({
+        ...mockUser,
+        email: registerDto.email,
+      });
+      mockRoleRepository.findOne.mockResolvedValue({
+        id: 3,
+        name: RoleType.VIEWER,
+      });
+      mockUserRoleRepository.save.mockResolvedValue({});
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
+
+      await service.register(registerDto);
+
+      expect(mockRoleRepository.findOne).toHaveBeenCalledWith({
+        where: { name: RoleType.VIEWER }
+      });
+      expect(mockUserRoleRepository.save).toHaveBeenCalledWith({
+        userId: mockUser.id,
+        roleId: 3,
+      });
+    });
   });
 
   describe('login', () => {
@@ -139,15 +206,14 @@ describe('AuthService', () => {
         password: 'password123',
       };
 
-      const mockRoles = ['Admin'];
+      const mockRole = 'Admin';
       const mockToken = 'jwt-token';
 
       mockUserService.findByEmail.mockResolvedValue(mockUser);
-      mockUserService.getUserRoles.mockResolvedValue(mockRoles);
       mockJwtService.sign.mockReturnValue(mockToken);
-      mockUserRoleRepository.find.mockResolvedValue([
-        { role: { name: 'Admin' } }
-      ]);
+      mockUserRoleRepository.findOne.mockResolvedValue({
+        role: { name: 'Admin' }
+      });
 
       // Mock bcrypt.compare
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -163,7 +229,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         user: userWithoutPassword,
         accessToken: mockToken,
-        roles: mockRoles,
+        role: mockRole,
       });
     });
 

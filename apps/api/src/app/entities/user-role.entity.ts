@@ -1,22 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 import { Role } from './role.entity';
-import { Organization } from './organization.entity';
 
 @Entity('user_roles')
-@Unique(['userId', 'roleId', 'organizationId'])
+@Unique(['userId']) // One role per user
 export class UserRole {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', unique: true }) // Enforce 1:1 relationship
   userId!: number;
 
   @Column({ name: 'role_id' })
   roleId!: number;
-
-  @Column({ name: 'organization_id' })
-  organizationId!: number;
 
   @Column({ name: 'assigned_by', nullable: true })
   assignedBy?: number;
@@ -28,10 +24,6 @@ export class UserRole {
   @ManyToOne(() => Role, role => role)
   @JoinColumn({ name: 'role_id' })
   role?: Role;
-
-  @ManyToOne(() => Organization, org => org)
-  @JoinColumn({ name: 'organization_id' })
-  organization?: Organization;
 
   @CreateDateColumn({ name: 'assigned_at' })
   assignedAt!: Date;

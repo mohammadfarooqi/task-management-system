@@ -38,18 +38,15 @@ export class OrganizationService {
       orgIds.push(...org.children.map(child => child.id));
     }
 
-    // Also check if this org is a child - get parent's other children
+    // Also check if this org is a child - include parent org
     if (org.parentId) {
-      const parent = await this.getOrganizationWithChildren(org.parentId);
+      const parent = await this.organizationRepository.findOne({
+        where: { id: org.parentId }
+      });
       if (parent) {
         orgIds.push(parent.id);
-        if (parent.children) {
-          parent.children.forEach(sibling => {
-            if (!orgIds.includes(sibling.id)) {
-              orgIds.push(sibling.id);
-            }
-          });
-        }
+        // Note: We do NOT add sibling organizations here
+        // Child orgs should NOT see sibling org tasks
       }
     }
 
@@ -75,5 +72,16 @@ export class OrganizationService {
   async isParentOrganization(organizationId: number): Promise<boolean> {
     const org = await this.getOrganizationWithChildren(organizationId);
     return !!(org && org.children && org.children.length > 0);
+  }
+
+  /**
+   * Check if targetOrgId is a child of parentOrgId
+   */
+  async isChildOrganization(parentOrgId: number, targetOrgId: number): Promise<boolean> {
+    const parentOrg = await this.getOrganizationWithChildren(parentOrgId);
+    if (!parentOrg || !parentOrg.children) {
+      return false;
+    }
+    return parentOrg.children.some(child => child.id === targetOrgId);
   }
 }

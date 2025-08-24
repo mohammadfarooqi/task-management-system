@@ -26,7 +26,7 @@ export class TaskController {
       createTaskDto,
       req.user.sub, // user ID from JWT
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     // log task creation
@@ -53,7 +53,7 @@ export class TaskController {
     const tasks = await this.taskService.findAll(
       req.user.sub,
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     // log task list access
@@ -79,7 +79,7 @@ export class TaskController {
       id,
       req.user.sub,
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     // log task access
@@ -111,7 +111,7 @@ export class TaskController {
       replaceTaskDto,
       req.user.sub,
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     // log task replacement
@@ -143,14 +143,14 @@ export class TaskController {
       id,
       req.user.sub,
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     await this.taskService.remove(
       id,
       req.user.sub,
       req.user.organizationId,
-      req.user.roles || []
+      req.user.role || 'Viewer' // Single role from JWT
     );
 
     // log task deletion

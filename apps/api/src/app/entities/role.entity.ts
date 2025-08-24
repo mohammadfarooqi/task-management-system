@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 export enum RoleType {
+  SYSTEM_ADMIN = 'SystemAdmin',
   OWNER = 'Owner',
   ADMIN = 'Admin',
   VIEWER = 'Viewer'
@@ -18,7 +19,7 @@ export class Role {
   description?: string;
 
   @Column({ type: 'integer' })
-  level!: number; // 1=Owner, 2=Admin, 3=Viewer (for hierarchy)
+  level!: number; // 0=SystemAdmin, 1=Owner, 2=Admin, 3=Viewer (for hierarchy)
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

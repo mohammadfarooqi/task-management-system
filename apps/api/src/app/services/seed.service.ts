@@ -33,6 +33,11 @@ export class SeedService implements OnModuleInit {
 
     console.log('Seeding initial data...');
 
+    // Create system organization for SystemAdmin
+    const systemOrg = await this.organizationRepository.save({
+      name: 'System',
+    });
+
     // Create organizations (2-level hierarchy)
     const parentOrg = await this.organizationRepository.save({
       name: 'TechCorp Holdings',
@@ -44,7 +49,12 @@ export class SeedService implements OnModuleInit {
     });
 
     // Create roles
-    const [ownerRole, adminRole, viewerRole] = await this.roleRepository.save([
+    const [systemAdminRole, ownerRole, adminRole, viewerRole] = await this.roleRepository.save([
+      {
+        name: RoleType.SYSTEM_ADMIN,
+        description: 'Platform administrator with full system access',
+        level: 0,
+      },
       {
         name: RoleType.OWNER,
         description: 'Full access to everything',
@@ -66,13 +76,13 @@ export class SeedService implements OnModuleInit {
     const testUsers = await this.userRepository.count();
     if (testUsers <= 1) {  // Only create if we don't have many users
 
-      // Create Admin user
-      const adminUser = await this.userRepository.save({
-        email: 'admin@techcorp.com',
+      // Create SystemAdmin user
+      const systemAdminUser = await this.userRepository.save({
+        email: 'admin@system.com',
         passwordHash: await bcrypt.hash('password123', 12),
-        firstName: 'Admin',
-        lastName: 'User',
-        organizationId: parentOrg.id,
+        firstName: 'System',
+        lastName: 'Admin',
+        organizationId: systemOrg.id,
       });
 
       // Create Owner user
@@ -84,19 +94,41 @@ export class SeedService implements OnModuleInit {
         organizationId: parentOrg.id,
       });
 
-      // Assign roles
+      // Create Admin user
+      const adminUser = await this.userRepository.save({
+        email: 'admin@techcorp.com',
+        passwordHash: await bcrypt.hash('password123', 12),
+        firstName: 'Admin',
+        lastName: 'User',
+        organizationId: parentOrg.id,
+      });
+
+      // Create Viewer user
+      const viewerUser = await this.userRepository.save({
+        email: 'viewer@techcorp.com',
+        passwordHash: await bcrypt.hash('password123', 12),
+        firstName: 'Viewer',
+        lastName: 'User',
+        organizationId: parentOrg.id,
+      });
+
+      // Assign roles (one role per user)
       await this.userRoleRepository.save([
-        { userId: ownerUser.id, roleId: ownerRole.id, organizationId: parentOrg.id },
-        { userId: adminUser.id, roleId: adminRole.id, organizationId: parentOrg.id },
+        { userId: systemAdminUser.id, roleId: systemAdminRole.id },
+        { userId: ownerUser.id, roleId: ownerRole.id },
+        { userId: adminUser.id, roleId: adminRole.id },
+        { userId: viewerUser.id, roleId: viewerRole.id },
       ]);
 
       console.log('Test users created:');
+      console.log('   SystemAdmin: admin@system.com / password123');
       console.log('   Owner: owner@techcorp.com / password123');
       console.log('   Admin: admin@techcorp.com / password123');
+      console.log('   Viewer: viewer@techcorp.com / password123');
     }
 
     console.log('Initial data seeded successfully!');
-    console.log(`Organizations: ${parentOrg.name} (ID: ${parentOrg.id}), ${childOrg.name} (ID: ${childOrg.id})`);
-    console.log('Roles: Owner, Admin, Viewer');
+    console.log(`Organizations: ${systemOrg.name} (ID: ${systemOrg.id}), ${parentOrg.name} (ID: ${parentOrg.id}), ${childOrg.name} (ID: ${childOrg.id})`);
+    console.log('Roles: SystemAdmin, Owner, Admin, Viewer');
   }
 }

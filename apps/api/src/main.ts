@@ -5,9 +5,10 @@ console.log('📍 main.ts file is being loaded...');
  * This is only a minimal backend to get started.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { GlobalExceptionFilter } from './app/filters/global-exception.filter';
 
 console.log('Imports loaded, starting bootstrap...');
 
@@ -17,6 +18,16 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
     console.log('NestJS app created successfully');
+
+    // Enable validation pipe globally
+    app.useGlobalPipes(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }));
+
+    // Enable global exception filter for consistent error responses
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     const globalPrefix = process.env.API_PREFIX || 'api';
     app.setGlobalPrefix(globalPrefix);

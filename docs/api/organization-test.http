@@ -1,0 +1,86 @@
+### Organization Management Tests (SystemAdmin only)
+@baseUrl = http://localhost:3000/api
+@systemAdminToken = <SYSTEM_ADMIN_JWT_TOKEN>
+
+### Login as SystemAdmin to get token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@system.com",
+  "password": "password123"
+}
+
+### Create a new root organization
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "name": "StartupCo"
+}
+
+### Create a child organization
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "name": "StartupCo Development Team",
+  "parentId": 4  // Replace with actual parent org ID
+}
+
+### Create an Owner for the new organization
+POST {{baseUrl}}/organizations/4/owner
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "email": "owner@startupco.com",
+  "password": "password123",
+  "firstName": "Startup",
+  "lastName": "Owner"
+}
+
+### Try to create org as non-SystemAdmin (should fail)
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+Authorization: Bearer <OWNER_TOKEN>
+
+{
+  "name": "Unauthorized Org"
+}
+
+### Try to create 3-level hierarchy (should fail)
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "name": "Grandchild Org",
+  "parentId": 5  // ID of a child org (should fail)
+}
+
+### Create owner with duplicate email (should fail)
+POST {{baseUrl}}/organizations/4/owner
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "email": "owner@techcorp.com",  // Already exists
+  "password": "password123",
+  "firstName": "Duplicate",
+  "lastName": "Owner"
+}
+
+### Create owner for non-existent org (should fail)
+POST {{baseUrl}}/organizations/999/owner
+Content-Type: application/json
+Authorization: Bearer {{systemAdminToken}}
+
+{
+  "email": "owner@nowhere.com",
+  "password": "password123",
+  "firstName": "No",
+  "lastName": "Where"
+}

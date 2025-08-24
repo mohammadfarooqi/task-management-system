@@ -82,7 +82,7 @@ describe('TaskService', () => {
 
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
 
       mockTaskRepository.create.mockReturnValue(mockTask);
       mockTaskRepository.save.mockResolvedValue(mockTask);
@@ -91,7 +91,7 @@ describe('TaskService', () => {
         createTaskDto,
         userId,
         organizationId,
-        userRoles
+        userRole
       );
 
       expect(taskRepository.create).toHaveBeenCalledWith({
@@ -118,7 +118,7 @@ describe('TaskService', () => {
 
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Owner'];
+      const userRole = 'Owner';
 
       mockTaskRepository.create.mockReturnValue(mockTask);
       mockTaskRepository.save.mockResolvedValue(mockTask);
@@ -127,20 +127,20 @@ describe('TaskService', () => {
         createTaskDto,
         userId,
         organizationId,
-        userRoles
+        userRole
       );
 
       expect(result).toEqual(mockTask);
     });
 
-    it('should throw ForbiddenException when user has no roles', async () => {
+    it('should throw ForbiddenException when user has no role', async () => {
       const createTaskDto = {
         title: 'New Task',
         description: 'New Description',
       };
 
       await expect(
-        service.create(createTaskDto, 1, 1, [])
+        service.create(createTaskDto, 1, 1, '')
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -151,7 +151,7 @@ describe('TaskService', () => {
       };
 
       await expect(
-        service.create(createTaskDto, 1, 1, ['Viewer'])
+        service.create(createTaskDto, 1, 1, 'Viewer')
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -160,13 +160,13 @@ describe('TaskService', () => {
     it('should return all tasks for Admin/Owner', async () => {
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
       const tasks = [mockTask];
 
       mockOrganizationService.getOrganizationHierarchyIds.mockResolvedValue([1]);
       mockQueryBuilder.getMany.mockResolvedValue(tasks);
 
-      const result = await service.findAll(userId, organizationId, userRoles);
+      const result = await service.findAll(userId, organizationId, userRole);
 
       expect(organizationService.getOrganizationHierarchyIds).toHaveBeenCalledWith(
         organizationId
@@ -177,13 +177,13 @@ describe('TaskService', () => {
     it('should return only assigned/created tasks for Viewer', async () => {
       const userId = 3;
       const organizationId = 1;
-      const userRoles = ['Viewer'];
+      const userRole = 'Viewer';
       const tasks = [{ ...mockTask, assignedTo: userId }];
 
       mockOrganizationService.getOrganizationHierarchyIds.mockResolvedValue([1]);
       mockQueryBuilder.getMany.mockResolvedValue(tasks);
 
-      const result = await service.findAll(userId, organizationId, userRoles);
+      const result = await service.findAll(userId, organizationId, userRole);
 
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
         '(task.createdBy = :userId OR task.assignedTo = :userId)',
@@ -195,13 +195,13 @@ describe('TaskService', () => {
     it('should handle organization hierarchy', async () => {
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
       const orgIds = [1, 2]; // Parent and child org
 
       mockOrganizationService.getOrganizationHierarchyIds.mockResolvedValue(orgIds);
       mockQueryBuilder.getMany.mockResolvedValue([mockTask]);
 
-      await service.findAll(userId, organizationId, userRoles);
+      await service.findAll(userId, organizationId, userRole);
 
       expect(mockQueryBuilder.where).toHaveBeenCalledWith(
         'task.organizationId IN (:...orgIds)',
@@ -215,12 +215,12 @@ describe('TaskService', () => {
       const taskId = 1;
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
 
       mockTaskRepository.findOne.mockResolvedValue(mockTask);
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
 
-      const result = await service.findOne(taskId, userId, organizationId, userRoles);
+      const result = await service.findOne(taskId, userId, organizationId, userRole);
 
       expect(result).toEqual(mockTask);
     });
@@ -229,7 +229,7 @@ describe('TaskService', () => {
       mockTaskRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.findOne(999, 1, 1, ['Admin'])
+        service.findOne(999, 1, 1, 'Admin')
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -238,17 +238,17 @@ describe('TaskService', () => {
       mockOrganizationService.canAccessOrganization.mockResolvedValue(false);
 
       await expect(
-        service.findOne(1, 3, 2, ['Viewer'])
+        service.findOne(1, 3, 2, 'Viewer')
       ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('replace', () => {
-    it('should replace task when user created it', async () => {
+    it('should replace task when Admin (even if not creator)', async () => {
       const taskId = 1;
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
       const replaceDto = {
         title: 'Updated Task',
         description: 'Updated Description',
@@ -257,12 +257,12 @@ describe('TaskService', () => {
         category: 'development',
       };
 
-      const taskByCreator = { ...mockTask, createdBy: userId };
-      mockTaskRepository.findOne.mockResolvedValue(taskByCreator);
+      const taskByOtherUser = { ...mockTask, createdBy: 999 }; // Different creator
+      mockTaskRepository.findOne.mockResolvedValue(taskByOtherUser);
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
       mockTaskRepository.update.mockResolvedValue({ affected: 1 });
 
-      await service.replace(taskId, replaceDto, userId, organizationId, userRoles);
+      await service.replace(taskId, replaceDto, userId, organizationId, userRole);
 
       expect(taskRepository.update).toHaveBeenCalledWith(taskId, {
         title: replaceDto.title,
@@ -280,7 +280,7 @@ describe('TaskService', () => {
       const userId = 2;
       const parentOrgId = 1;
       const childOrgId = 2;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
       const replaceDto = {
         title: 'Updated by Parent Admin',
         description: 'Updated Description',
@@ -294,7 +294,7 @@ describe('TaskService', () => {
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
       mockTaskRepository.update.mockResolvedValue({ affected: 1 });
 
-      await service.replace(taskId, replaceDto, userId, parentOrgId, userRoles);
+      await service.replace(taskId, replaceDto, userId, parentOrgId, userRole);
 
       expect(taskRepository.update).toHaveBeenCalled();
     });
@@ -312,26 +312,49 @@ describe('TaskService', () => {
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
 
       await expect(
-        service.replace(1, replaceDto, 3, 1, ['Viewer'])
+        service.replace(1, replaceDto, 3, 1, 'Viewer')
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow Owner to replace any task', async () => {
+      const taskId = 1;
+      const userId = 1;
+      const organizationId = 1;
+      const userRole = 'Owner';
+      const replaceDto = {
+        title: 'Updated by Owner',
+        description: 'Owner can update any task',
+        status: 'completed',
+        priority: 'low',
+        category: 'management',
+      };
+
+      const taskByOtherUser = { ...mockTask, createdBy: 999 };
+      mockTaskRepository.findOne.mockResolvedValue(taskByOtherUser);
+      mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
+      mockTaskRepository.update.mockResolvedValue({ affected: 1 });
+
+      await service.replace(taskId, replaceDto, userId, organizationId, userRole);
+
+      expect(taskRepository.update).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
-    it('should remove task when user created it', async () => {
+    it('should remove task when Admin (even if not creator)', async () => {
       const taskId = 1;
       const userId = 1;
       const organizationId = 1;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
 
-      const taskByCreator = { ...mockTask, createdBy: userId };
-      mockTaskRepository.findOne.mockResolvedValue(taskByCreator);
+      const taskByOtherUser = { ...mockTask, createdBy: 999 }; // Different creator
+      mockTaskRepository.findOne.mockResolvedValue(taskByOtherUser);
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
-      mockTaskRepository.remove.mockResolvedValue(taskByCreator);
+      mockTaskRepository.remove.mockResolvedValue(taskByOtherUser);
 
-      await service.remove(taskId, userId, organizationId, userRoles);
+      await service.remove(taskId, userId, organizationId, userRole);
 
-      expect(taskRepository.remove).toHaveBeenCalledWith(taskByCreator);
+      expect(taskRepository.remove).toHaveBeenCalledWith(taskByOtherUser);
     });
 
     it('should allow parent org Admin to delete child org task', async () => {
@@ -339,14 +362,14 @@ describe('TaskService', () => {
       const userId = 2;
       const parentOrgId = 1;
       const childOrgId = 2;
-      const userRoles = ['Admin'];
+      const userRole = 'Admin';
 
       const childOrgTask = { ...mockTask, organizationId: childOrgId, createdBy: 3 };
       mockTaskRepository.findOne.mockResolvedValue(childOrgTask);
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
       mockTaskRepository.remove.mockResolvedValue(childOrgTask);
 
-      await service.remove(taskId, userId, parentOrgId, userRoles);
+      await service.remove(taskId, userId, parentOrgId, userRole);
 
       expect(taskRepository.remove).toHaveBeenCalledWith(childOrgTask);
     });
@@ -355,14 +378,30 @@ describe('TaskService', () => {
       const taskId = 1;
       const userId = 3;
       const organizationId = 1;
-      const userRoles = ['Viewer'];
+      const userRole = 'Viewer';
 
       mockTaskRepository.findOne.mockResolvedValue(mockTask);
       mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
 
       await expect(
-        service.remove(taskId, userId, organizationId, userRoles)
+        service.remove(taskId, userId, organizationId, userRole)
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow Owner to remove any task', async () => {
+      const taskId = 1;
+      const userId = 1;
+      const organizationId = 1;
+      const userRole = 'Owner';
+
+      const taskByOtherUser = { ...mockTask, createdBy: 999 };
+      mockTaskRepository.findOne.mockResolvedValue(taskByOtherUser);
+      mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
+      mockTaskRepository.remove.mockResolvedValue(taskByOtherUser);
+
+      await service.remove(taskId, userId, organizationId, userRole);
+
+      expect(taskRepository.remove).toHaveBeenCalledWith(taskByOtherUser);
     });
   });
 });

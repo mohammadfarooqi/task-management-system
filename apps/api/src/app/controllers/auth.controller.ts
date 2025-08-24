@@ -2,7 +2,6 @@ import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/commo
 import { AuthService } from '../services/auth.service';
 import { Public, CurrentUser } from '@task-management-system/auth';
 import {
-  CreateUserDto,
   LoginDto,
   ApiResponse,
   LoginResponseDto
@@ -11,29 +10,6 @@ import {
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-
-  @Public()
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<any>> {
-    try {
-      const user = await this.authService.register(createUserDto);
-
-      // Remove password hash before returning
-      const { passwordHash, ...userResponse } = user;
-
-      return {
-        success: true,
-        data: userResponse,
-        message: 'User registered successfully',
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        data: null,
-        message: error.message,
-      };
-    }
-  }
 
   @Public()
   @Post('login')

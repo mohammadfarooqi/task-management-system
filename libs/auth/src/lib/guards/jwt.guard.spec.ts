@@ -73,7 +73,7 @@ describe('JwtGuard', () => {
         sub: 1,
         email: 'test@example.com',
         organizationId: 1,
-        roles: ['Admin'],
+        role: 'Admin',
       };
 
       mockReflector.getAllAndOverride.mockReturnValue(false);
@@ -172,7 +172,7 @@ describe('JwtGuard', () => {
         sub: 1,
         email: 'test@example.com',
         organizationId: 1,
-        roles: ['Admin'],
+        role: 'Admin',
       };
 
       mockReflector.getAllAndOverride.mockReturnValue(false);
@@ -200,7 +200,7 @@ describe('JwtGuard', () => {
         sub: 2,
         email: 'admin@example.com',
         organizationId: 1,
-        roles: ['Owner'],
+        role: 'Owner',
       };
 
       mockReflector.getAllAndOverride.mockReturnValue(false);
@@ -213,7 +213,7 @@ describe('JwtGuard', () => {
 
       expect(mockRequest['user']).toEqual(mockPayload);
       expect(mockRequest['user'].sub).toBe(2);
-      expect(mockRequest['user'].roles).toContain('Owner');
+      expect(mockRequest['user'].role).toBe('Owner');
     });
   });
 });

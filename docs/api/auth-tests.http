@@ -2,7 +2,16 @@
 @baseUrl = http://localhost:3000/api
 @contentType = application/json
 
-### Login as OWNER (full access)
+### Login as SYSTEM ADMIN (platform administrator)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@system.com",
+  "password": "password123"
+}
+
+### Login as OWNER (full org access)
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -20,19 +29,7 @@ Content-Type: {{contentType}}
   "password": "password123"
 }
 
-### Register a new VIEWER user (gets viewer role automatically)
-POST {{baseUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "email": "viewer@techcorp.com",
-  "password": "password123",
-  "firstName": "Viewer",
-  "lastName": "User",
-  "organizationId": 1
-}
-
-### Login as new VIEWER (read-only access)
+### Login as VIEWER (read-only access)
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -54,14 +51,11 @@ Content-Type: {{contentType}}
   "password": "wrongpassword"
 }
 
-### Try to register duplicate user (should fail)
-POST {{baseUrl}}/auth/register
+### Login with non-existent user (should fail)
+POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "admin@techcorp.com",
-  "password": "password123",
-  "firstName": "Duplicate",
-  "lastName": "User",
-  "organizationId": 1
+  "email": "nonexistent@example.com",
+  "password": "password123"
 }

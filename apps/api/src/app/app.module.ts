@@ -23,6 +23,8 @@ import { OrganizationService } from './services/organization.service';
 import { AuthController } from './controllers/auth.controller';
 import { TaskController } from './controllers/task.controller';
 import { AuditController } from './controllers/audit.controller';
+import { UserController } from './controllers/user.controller';
+import { OrganizationController } from './controllers/organization.controller';
 
 import { JWT_CONFIG, JwtGuard } from '@task-management-system/auth';
 
@@ -61,7 +63,7 @@ import { JWT_CONFIG, JwtGuard } from '@task-management-system/auth';
       signOptions: { expiresIn: JWT_CONFIG.expiresIn },
     }),
   ],
-  controllers: [AppController, AuthController, TaskController, AuditController],
+  controllers: [AppController, AuthController, TaskController, AuditController, UserController, OrganizationController],
   providers: [
     AppService,
     UserService,
