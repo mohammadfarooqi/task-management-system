@@ -19,6 +19,14 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     console.log('NestJS app created successfully');
 
+    // Enable CORS for frontend development
+    app.enableCors({
+      origin: ['http://localhost:4200', 'http://localhost:4201'],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+
     // Enable validation pipe globally
     app.useGlobalPipes(new ValidationPipe({
       transform: true,

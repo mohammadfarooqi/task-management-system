@@ -324,26 +324,29 @@ npm run test:affected
 
 #### Angular Components (Dashboard)
 ```bash
-# Generate a new component
-npm run g:component apps/dashboard/src/app/components/[name]
+# Generate a new component (shortcut for dashboard)
+npm run g:dash-component -- [name] --path=apps/dashboard/src/app/components
 
-# Example: Generate login component in auth folder
-npm run g:component apps/dashboard/src/app/components/auth/login -- --standalone=false --style=scss
+# Generate a service (shortcut for dashboard)
+npm run g:dash-service -- [name] --path=apps/dashboard/src/app/services
 
-# Generate a service
-npm run g:service apps/dashboard/src/app/services/[name]
+# Generate a guard (shortcut for dashboard)
+npm run g:dash-guard -- [name] --path=apps/dashboard/src/app/guards
 
-# Generate a directive
-npm run g:directive apps/dashboard/src/app/directives/[name]
+# Examples:
+# Generate auth service
+npm run g:dash-service -- auth --path=apps/dashboard/src/app/services
 
-# Generate a pipe
-npm run g:pipe apps/dashboard/src/app/pipes/[name]
+# Generate login component in auth folder
+npm run g:dash-component -- login --path=apps/dashboard/src/app/components/auth --standalone=false --style=scss
 
-# Generate a guard
-npm run g:guard apps/dashboard/src/app/guards/[name]
-
-# Generate a module
-npm run g:module apps/dashboard/src/app/modules/[name]
+# Full syntax for any project:
+npm run g:component -- [name] --project=dashboard --path=apps/dashboard/src/app/components
+npm run g:service -- [name] --project=dashboard --path=apps/dashboard/src/app/services
+npm run g:directive -- [name] --project=dashboard --path=apps/dashboard/src/app/directives
+npm run g:pipe -- [name] --project=dashboard --path=apps/dashboard/src/app/pipes
+npm run g:guard -- [name] --project=dashboard --path=apps/dashboard/src/app/guards
+npm run g:module -- [name] --project=dashboard --path=apps/dashboard/src/app/modules
 ```
 
 #### NestJS Components (API)

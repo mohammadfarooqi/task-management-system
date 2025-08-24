@@ -10,7 +10,9 @@
     "module": "esnext",
     "importHelpers": true,
     "emitDeclarationOnly": false,
-    "composite": false
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
