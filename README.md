@@ -122,7 +122,7 @@ StartupInc (Independent)
   - ✅ TechCorp Development tasks
   - ✅ TechCorp Marketing tasks
   - ✅ TechCorp Support tasks
-  
+
 - Users in **TechCorp Development** (child) can see:
   - ✅ TechCorp Development tasks (their own)
   - ✅ TechCorp Holdings tasks (parent)
@@ -286,7 +286,8 @@ Response:
     "user": { ... },
     "accessToken": "jwt-token-here",
     "role": "Admin"  // Single role string, not array
-  }
+  },
+  "message": "Login successful"
 }
 ```
 
@@ -308,6 +309,19 @@ Content-Type: application/json
 }
 ```
 
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "New Company",
+    "parentId": null
+  },
+  "message": "Organization created successfully"
+}
+```
+
 #### Create Owner for Organization
 ```http
 POST /api/organizations/:id/owner
@@ -318,6 +332,23 @@ Content-Type: application/json
   "password": "password123",
   "firstName": "John",
   "lastName": "Owner"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "email": "owner@newcompany.com",
+    "firstName": "John",
+    "lastName": "Owner",
+    "organizationId": 2,
+    "role": "Owner",
+    "organization": "New Company"
+  },
+  "message": "Owner created successfully for organization"
 }
 ```
 
@@ -385,14 +416,67 @@ Content-Type: application/json
 }
 ```
 
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Task title",
+    "description": "Task description",
+    "status": "pending",
+    "priority": "high",
+    "category": "development",
+    "createdBy": 1,
+    "assignedTo": 2,
+    "organizationId": 1
+  },
+  "message": "Task created successfully"
+}
+```
+
 #### Get All Tasks
 ```http
 GET /api/tasks
 ```
 
+Response:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Task title",
+      "status": "pending",
+      "priority": "high",
+      "assignedTo": 2
+    }
+  ]
+}
+```
+
 #### Get Single Task
 ```http
 GET /api/tasks/:id
+```
+
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Task title",
+    "description": "Task description",
+    "status": "pending",
+    "priority": "high",
+    "category": "development",
+    "createdBy": 1,
+    "assignedTo": 2,
+    "organizationId": 1
+  }
+}
 ```
 
 #### Update Task (PUT - full replacement)
@@ -414,6 +498,15 @@ Content-Type: application/json
 DELETE /api/tasks/:id
 ```
 
+Response:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Task deleted successfully"
+}
+```
+
 ### Audit Log Endpoints (Admin/Owner only)
 
 #### Get Audit Logs
@@ -421,6 +514,24 @@ DELETE /api/tasks/:id
 GET /api/audit-log
 GET /api/audit-log?action=task:created&limit=10
 GET /api/audit-log?userId=2&page=1&limit=5
+```
+
+Response:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "userId": 1,
+      "action": "task:created",
+      "resourceType": "task",
+      "resourceId": 1,
+      "organizationId": 1,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
 ```
 
 ## 🗄️ Data Model
@@ -461,10 +572,10 @@ GET /api/audit-log?userId=2&page=1&limit=5
 │ level        │         │              │
 │ createdAt    │         └──────────────┘
 └──────────────┘         (unique: userId)
-                                  
+
 ┌──────────────┐         ┌──────────────┐
 │     Task     │ n     1 │   AuditLog   │
-├──────────────┤ ────────► ├──────────────┤
+├──────────────┤ ──────► ├──────────────┤
 │ id (PK)      │         │ id (PK)      │
 │ title        │         │ userId (FK)  │
 │ description  │         │ action       │
@@ -560,7 +671,7 @@ Note: All users must be created via authenticated endpoints:
    - `org-hierarchy-test.http`: Organization hierarchy testing
    - `user-test.http`: User creation and permissions testing
 
-3. **Making Changes**: 
+3. **Making Changes**:
    - Services are in `apps/api/src/app/services/`
    - DTOs are in `libs/data/src/lib/dto/`
    - Guards are in `libs/auth/src/lib/guards/`
@@ -595,12 +706,10 @@ Note: All users must be created via authenticated endpoints:
 - [ ] Real-time updates with WebSockets
 - [ ] Task attachments and comments
 - [ ] Email notifications
-- [ ] Task templates
 - [ ] Recurring tasks
 - [ ] Team collaboration features
 - [ ] Export functionality (CSV, PDF)
 - [ ] Activity dashboard and analytics
-- [ ] Multi-language support
 - [ ] Mobile application
 
 ## 📝 License

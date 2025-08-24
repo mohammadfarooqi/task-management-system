@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Request, ForbiddenException } from '@nestjs/common';
-import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 import { OrganizationService } from '../services/organization.service';
 import { CreateUserDto, ApiResponse, RoleType } from '@task-management-system/data';
 
 @Controller('users')
 export class UserController {
   constructor(
-    private authService: AuthService,
+    private userService: UserService,
     private organizationService: OrganizationService,
   ) {}
 
@@ -62,10 +62,16 @@ export class UserController {
       }
 
       // If all checks pass, create the user
-      const user = await this.authService.register(createUserDto);
-
-      // Remove password hash before returning
-      const { passwordHash, ...userResponse } = user;
+      const userResponse = await this.userService.createUserWithRole(
+        {
+          email: createUserDto.email,
+          password: createUserDto.password,
+          firstName: createUserDto.firstName,
+          lastName: createUserDto.lastName,
+          organizationId: createUserDto.organizationId,
+        },
+        targetRole
+      );
 
       return {
         success: true,

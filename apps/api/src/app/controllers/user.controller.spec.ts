@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
-import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 import { OrganizationService } from '../services/organization.service';
 import { RoleType } from '@task-management-system/data';
 import { ForbiddenException } from '@nestjs/common';
 
 describe('UserController', () => {
   let controller: UserController;
-  let authService: AuthService;
+  let userService: UserService;
   let organizationService: OrganizationService;
 
-  const mockAuthService = {
-    register: jest.fn(),
+  const mockUserService = {
+    createUserWithRole: jest.fn(),
   };
 
   const mockOrganizationService = {
@@ -23,8 +23,8 @@ describe('UserController', () => {
       controllers: [UserController],
       providers: [
         {
-          provide: AuthService,
-          useValue: mockAuthService,
+          provide: UserService,
+          useValue: mockUserService,
         },
         {
           provide: OrganizationService,
@@ -34,7 +34,7 @@ describe('UserController', () => {
     }).compile();
 
     controller = module.get<UserController>(UserController);
-    authService = module.get<AuthService>(AuthService);
+    userService = module.get<UserService>(UserService);
     organizationService = module.get<OrganizationService>(OrganizationService);
 
     // Reset all mocks
@@ -73,12 +73,21 @@ describe('UserController', () => {
           roleType: RoleType.OWNER,
         };
 
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, ownerRequest);
 
         expect(result.success).toBe(true);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.OWNER
+        );
       });
 
       it('should allow Owner to create Admin in same org', async () => {
@@ -91,12 +100,21 @@ describe('UserController', () => {
           roleType: RoleType.ADMIN,
         };
 
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, ownerRequest);
 
         expect(result.success).toBe(true);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.ADMIN
+        );
       });
 
       it('should allow Owner to create Admin in child org', async () => {
@@ -110,13 +128,22 @@ describe('UserController', () => {
         };
 
         mockOrganizationService.isChildOrganization.mockResolvedValue(true);
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, ownerRequest);
 
         expect(result.success).toBe(true);
         expect(organizationService.isChildOrganization).toHaveBeenCalledWith(1, 2);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.ADMIN
+        );
       });
 
       it('should NOT allow Owner to create Owner in child org', async () => {
@@ -135,7 +162,7 @@ describe('UserController', () => {
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Cannot create Owner in child organization');
-        expect(authService.register).not.toHaveBeenCalled();
+        expect(userService.createUserWithRole).not.toHaveBeenCalled();
       });
 
       it('should NOT allow Owner to create user in unrelated org', async () => {
@@ -154,7 +181,7 @@ describe('UserController', () => {
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Cannot create users in unrelated organizations');
-        expect(authService.register).not.toHaveBeenCalled();
+        expect(userService.createUserWithRole).not.toHaveBeenCalled();
       });
     });
 
@@ -177,12 +204,21 @@ describe('UserController', () => {
           roleType: RoleType.ADMIN,
         };
 
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, adminRequest);
 
         expect(result.success).toBe(true);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.ADMIN
+        );
       });
 
       it('should allow Admin to create Viewer in same org', async () => {
@@ -195,12 +231,21 @@ describe('UserController', () => {
           roleType: RoleType.VIEWER,
         };
 
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, adminRequest);
 
         expect(result.success).toBe(true);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.VIEWER
+        );
       });
 
       it('should allow parent Admin to create Admin in child org', async () => {
@@ -214,13 +259,22 @@ describe('UserController', () => {
         };
 
         mockOrganizationService.isChildOrganization.mockResolvedValue(true);
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, adminRequest);
 
         expect(result.success).toBe(true);
         expect(organizationService.isChildOrganization).toHaveBeenCalledWith(1, 2);
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.ADMIN
+        );
       });
 
       it('should NOT allow Admin to create Owner anywhere', async () => {
@@ -237,7 +291,7 @@ describe('UserController', () => {
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Admins cannot create Owner users');
-        expect(authService.register).not.toHaveBeenCalled();
+        expect(userService.createUserWithRole).not.toHaveBeenCalled();
       });
 
       it('should NOT allow Admin to create user in unrelated org', async () => {
@@ -256,7 +310,7 @@ describe('UserController', () => {
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Cannot create users in unrelated organizations');
-        expect(authService.register).not.toHaveBeenCalled();
+        expect(userService.createUserWithRole).not.toHaveBeenCalled();
       });
     });
 
@@ -283,7 +337,7 @@ describe('UserController', () => {
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Viewers cannot create users');
-        expect(authService.register).not.toHaveBeenCalled();
+        expect(userService.createUserWithRole).not.toHaveBeenCalled();
       });
     });
 
@@ -306,13 +360,22 @@ describe('UserController', () => {
           // roleType not specified
         };
 
-        mockAuthService.register.mockResolvedValue(mockUser);
+        mockUserService.createUserWithRole.mockResolvedValue(mockUser);
 
         const result = await controller.createUser(createUserDto, ownerRequest);
 
         expect(result.success).toBe(true);
-        // The controller passes the DTO as-is to AuthService, which handles defaulting
-        expect(authService.register).toHaveBeenCalledWith(createUserDto);
+        // The controller uses RoleType.VIEWER as default when not specified
+        expect(userService.createUserWithRole).toHaveBeenCalledWith(
+          {
+            email: createUserDto.email,
+            password: createUserDto.password,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            organizationId: createUserDto.organizationId,
+          },
+          RoleType.VIEWER
+        );
       });
     });
   });

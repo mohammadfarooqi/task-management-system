@@ -6,10 +6,6 @@ import { UserService } from '../services/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
-import { User } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
-import { UserRole } from '../entities/user-role.entity';
-import * as bcrypt from 'bcryptjs';
 
 interface CreateOrganizationDto {
   name: string;
@@ -30,12 +26,6 @@ export class OrganizationController {
     private readonly userService: UserService,
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
-    @InjectRepository(UserRole)
-    private userRoleRepository: Repository<UserRole>,
   ) {}
 
   @Post()
@@ -87,43 +77,17 @@ export class OrganizationController {
       throw new HttpException('Organization not found', HttpStatus.NOT_FOUND);
     }
 
-    // Check if email already exists
-    const existingUser = await this.userService.findByEmail(createOwnerDto.email);
-    if (existingUser) {
-      throw new HttpException('User with this email already exists', HttpStatus.CONFLICT);
-    }
-
-    // Hash password
-    const saltRounds = Number(process.env.BCRYPT_ROUNDS) || 12;
-    const passwordHash = await bcrypt.hash(createOwnerDto.password, saltRounds);
-
-    // Create user
-    const user = await this.userRepository.save({
-      email: createOwnerDto.email,
-      passwordHash,
-      firstName: createOwnerDto.firstName,
-      lastName: createOwnerDto.lastName,
-      organizationId,
-      isActive: true,
-    });
-
-    // Get Owner role
-    const ownerRole = await this.roleRepository.findOne({
-      where: { name: RoleType.OWNER }
-    });
-
-    if (!ownerRole) {
-      throw new HttpException('Owner role not found in system', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    // Assign Owner role to user
-    await this.userRoleRepository.save({
-      userId: user.id,
-      roleId: ownerRole.id,
-    });
-
-    // Remove password hash before returning
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    // Create user with Owner role using UserService
+    const userWithoutPassword = await this.userService.createUserWithRole(
+      {
+        email: createOwnerDto.email,
+        password: createOwnerDto.password,
+        firstName: createOwnerDto.firstName,
+        lastName: createOwnerDto.lastName,
+        organizationId,
+      },
+      RoleType.OWNER
+    );
 
     return {
       success: true,
