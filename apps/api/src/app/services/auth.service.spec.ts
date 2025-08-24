@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
-import { Role, RoleType } from '../entities/role.entity';
 import { UserRole } from '../entities/user-role.entity';
 import * as bcrypt from 'bcryptjs';
 
@@ -42,14 +41,7 @@ describe('AuthService', () => {
     sign: jest.fn(),
   };
 
-  const mockRoleRepository = {
-    findOne: jest.fn(),
-  };
-
   const mockUserRoleRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    find: jest.fn(),
     findOne: jest.fn(),
   };
 
@@ -66,10 +58,6 @@ describe('AuthService', () => {
           useValue: mockJwtService,
         },
         {
-          provide: getRepositoryToken(Role),
-          useValue: mockRoleRepository,
-        },
-        {
           provide: getRepositoryToken(UserRole),
           useValue: mockUserRoleRepository,
         },
@@ -83,120 +71,6 @@ describe('AuthService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  describe('register', () => {
-    it('should successfully register a new user', async () => {
-      const registerDto = {
-        email: 'new@example.com',
-        password: 'password123',
-        firstName: 'New',
-        lastName: 'User',
-        organizationId: 1,
-      };
-
-      mockUserService.findByEmail.mockResolvedValue(null);
-      mockUserService.create.mockResolvedValue({
-        ...mockUser,
-        email: registerDto.email,
-      });
-      mockRoleRepository.findOne.mockResolvedValue({
-        id: 3,
-        name: RoleType.VIEWER,
-      });
-      mockUserRoleRepository.create.mockReturnValue({});
-      mockUserRoleRepository.save.mockResolvedValue({});
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
-
-      const result = await service.register(registerDto);
-
-      expect(userService.findByEmail).toHaveBeenCalledWith(registerDto.email);
-      expect(userService.create).toHaveBeenCalled();
-      expect(result).toHaveProperty('email', registerDto.email);
-    });
-
-    it('should throw ConflictException if email already exists', async () => {
-      const registerDto = {
-        email: 'existing@example.com',
-        password: 'password123',
-        firstName: 'Existing',
-        lastName: 'User',
-        organizationId: 1,
-      };
-
-      mockUserService.findByEmail.mockResolvedValue(mockUser);
-
-      await expect(service.register(registerDto)).rejects.toThrow(
-        ConflictException
-      );
-      expect(userService.create).not.toHaveBeenCalled();
-    });
-
-    it('should assign specified roleType when provided', async () => {
-      const registerDto = {
-        email: 'admin@example.com',
-        password: 'password123',
-        firstName: 'Admin',
-        lastName: 'User',
-        organizationId: 1,
-        roleType: RoleType.ADMIN,
-      };
-
-      mockUserService.findByEmail.mockResolvedValue(null);
-      mockUserService.create.mockResolvedValue({
-        ...mockUser,
-        email: registerDto.email,
-      });
-      mockRoleRepository.findOne.mockResolvedValue({
-        id: 2,
-        name: RoleType.ADMIN,
-      });
-      mockUserRoleRepository.save.mockResolvedValue({});
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
-
-      await service.register(registerDto);
-
-      expect(mockRoleRepository.findOne).toHaveBeenCalledWith({
-        where: { name: RoleType.ADMIN }
-      });
-      expect(mockUserRoleRepository.save).toHaveBeenCalledWith({
-        userId: mockUser.id,
-        roleId: 2,
-      });
-    });
-
-    it('should default to VIEWER role when roleType not specified', async () => {
-      const registerDto = {
-        email: 'default@example.com',
-        password: 'password123',
-        firstName: 'Default',
-        lastName: 'User',
-        organizationId: 1,
-        // roleType not specified
-      };
-
-      mockUserService.findByEmail.mockResolvedValue(null);
-      mockUserService.create.mockResolvedValue({
-        ...mockUser,
-        email: registerDto.email,
-      });
-      mockRoleRepository.findOne.mockResolvedValue({
-        id: 3,
-        name: RoleType.VIEWER,
-      });
-      mockUserRoleRepository.save.mockResolvedValue({});
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
-
-      await service.register(registerDto);
-
-      expect(mockRoleRepository.findOne).toHaveBeenCalledWith({
-        where: { name: RoleType.VIEWER }
-      });
-      expect(mockUserRoleRepository.save).toHaveBeenCalledWith({
-        userId: mockUser.id,
-        roleId: 3,
-      });
-    });
   });
 
   describe('login', () => {
