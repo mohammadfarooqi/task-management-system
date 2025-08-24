@@ -1,4 +1,4 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { App } from './app';
@@ -8,7 +8,7 @@ import { NxWelcome } from './nx-welcome';
 @NgModule({
   declarations: [App, NxWelcome],
   imports: [BrowserModule, RouterModule.forRoot(appRoutes)],
-  providers: [provideBrowserGlobalErrorListeners()],
+  providers: [],
   bootstrap: [App],
 })
 export class AppModule {}

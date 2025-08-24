@@ -6,15 +6,23 @@ A comprehensive task management system built with NX monorepo architecture, feat
 
 This project uses an NX monorepo structure with:
 - **Backend API** (`apps/api`): NestJS REST API with TypeORM and SQLite
+- **Frontend Dashboard** (`apps/dashboard`): Angular 17 application with Tailwind CSS
 - **Shared Libraries**:
   - `libs/auth`: Authentication guards, JWT configuration
   - `libs/data`: Shared DTOs, interfaces, and role helpers
 
 ## 🚀 Features
 
+### Frontend Features
+- **Angular 17**: Modern Angular application with TypeScript
+- **Tailwind CSS v3**: Utility-first CSS framework for rapid UI development
+- **Responsive Design**: Mobile-first responsive layouts
+- **Component Architecture**: Modular and reusable components
+- **NX Monorepo**: Shared libraries and efficient build system
+
 ### Backend Features
 - **JWT Authentication**: Secure token-based authentication
-- **Role-Based Access Control (RBAC)**: Three-tier role system (Owner > Admin > Viewer)
+- **Role-Based Access Control (RBAC)**: Four-tier role system (SystemAdmin > Owner > Admin > Viewer)
 - **Organization Hierarchy**: 2-level parent-child organization structure
 - **Task Management**: Full CRUD operations with role-based permissions
 - **Audit Logging**: Comprehensive tracking of all system actions
@@ -176,8 +184,9 @@ Result:
 ## 📋 Prerequisites
 
 - Node.js (v18 or higher)
-- npm or pnpm
+- pnpm (recommended) or npm
 - Git
+- Angular CLI (optional, for global commands)
 
 ## 🛠️ Installation
 
@@ -189,9 +198,9 @@ cd task-management-system
 
 2. Install dependencies:
 ```bash
-npm install
-# or
 pnpm install
+# or
+npm install
 ```
 
 3. Create `.env` file in the root directory:
@@ -224,6 +233,8 @@ BCRYPT_ROUNDS=12
 ## 🏃‍♂️ Running the Application
 
 ### Development Mode
+
+#### Backend (API)
 ```bash
 # Run the API with auto-reload
 npm run dev
@@ -234,7 +245,23 @@ npm run start:api
 
 The API will be available at `http://localhost:3000/api`
 
+#### Frontend (Dashboard)
+```bash
+# Run the Angular dashboard
+npm run start:dashboard
+```
+
+The dashboard will be available at `http://localhost:4200`
+
+#### Run Both Together
+```bash
+# Start both API and dashboard in parallel
+npm run start:all
+```
+
 ### Production Build
+
+#### Backend
 ```bash
 # Build the API
 npm run build:api
@@ -243,24 +270,153 @@ npm run build:api
 node dist/apps/api/main.js
 ```
 
+#### Frontend
+```bash
+# Build the dashboard for production
+npm run build:dashboard
+
+# The built files will be in dist/apps/dashboard
+# Serve with any static file server
+```
+
 ## 🧪 Testing
 
 ### Run Unit Tests
 ```bash
-# Run API tests
+# Run all tests across the monorepo
+npm run test
+
+# Run API tests only
 npm run test:api
+
+# Run Dashboard tests only  
+npm run test:dashboard
 
 # Run Auth library tests
 npm run test:auth
-
-# Run all tests (using NX)
-npm run test
 
 # Run tests with coverage
 npm run test:coverage
 
 # Run tests in watch mode
 npm run test:watch
+
+# Test only affected projects (based on git changes)
+npm run affected:test
+```
+
+## 🛠️ Development Commands
+
+### Component Generation
+
+#### Angular Components (Dashboard)
+```bash
+# Generate a new component
+npm run g:component -- --name=task-list --project=dashboard
+
+# Generate in a specific folder
+npm run g:component -- --name=task-item --project=dashboard --path=apps/dashboard/src/app/components
+
+# Generate a service
+npm run g:service -- --name=task --project=dashboard
+
+# Generate a directive
+npm run g:directive -- --name=highlight --project=dashboard
+
+# Generate a pipe
+npm run g:pipe -- --name=truncate --project=dashboard
+
+# Generate a guard
+npm run g:guard -- --name=auth --project=dashboard
+
+# Generate a module
+npm run g:module -- --name=shared --project=dashboard
+```
+
+#### NestJS Components (API)
+```bash
+# Generate a new module
+npm run g:api-module -- --name=users --project=api
+
+# Generate a controller
+npm run g:api-controller -- --name=users --project=api
+
+# Generate a service
+npm run g:api-service -- --name=users --project=api
+
+# Generate a complete resource (module, controller, service, DTOs)
+npm run g:api-resource -- --name=projects --project=api
+```
+
+### Code Quality
+
+#### Linting
+```bash
+# Lint all projects
+npm run lint
+
+# Lint specific project
+npm run lint:dashboard
+npm run lint:api
+
+# Lint only affected projects
+npm run affected:lint
+```
+
+#### Formatting
+```bash
+# Format code
+npm run format
+
+# Check formatting without changes
+npm run format:check
+```
+
+### Build & Clean
+
+```bash
+# Build only affected projects
+npm run affected:build
+
+# View project dependency graph
+npm run graph
+
+# Reset NX cache
+npm run reset
+
+# Clean build artifacts and cache
+npm run clean
+
+# Full clean (including node_modules)
+npm run clean:full
+
+# Clean install dependencies
+npm run install:clean
+```
+
+### Example Workflows
+
+#### Creating a New Task Component
+```bash
+# 1. Generate the component
+npm run g:component -- --name=task-card --project=dashboard --path=apps/dashboard/src/app/components
+
+# 2. Generate a service for it
+npm run g:service -- --name=task --project=dashboard --path=apps/dashboard/src/app/services
+
+# 3. Start the dev server to see it
+npm run start:dashboard
+```
+
+#### Creating a New API Endpoint
+```bash
+# Generate a complete resource with CRUD operations
+npm run g:api-resource -- --name=comments --project=api
+
+# Or generate individually:
+npm run g:api-module -- --name=comments --project=api
+npm run g:api-controller -- --name=comments --project=api --path=apps/api/src/app/comments
+npm run g:api-service -- --name=comments --project=api --path=apps/api/src/app/comments
 ```
 
 ## 📚 API Documentation
@@ -619,6 +775,18 @@ task-management-system/
 │   │   │   │   └── app.module.ts
 │   │   │   └── main.ts
 │   │   └── project.json
+│   └── dashboard/           # Angular frontend application
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── components/
+│       │   │   ├── services/
+│       │   │   ├── app.html
+│       │   │   ├── app.ts
+│       │   │   ├── app-module.ts
+│       │   │   └── app.routes.ts
+│       │   ├── styles.scss  # Global styles with Tailwind directives
+│       │   └── main.ts
+│       └── project.json
 ├── libs/
 │   ├── auth/                # Authentication library
 │   │   └── src/
@@ -637,8 +805,11 @@ task-management-system/
 ├── docs/
 │   ├── api/                 # API test files
 │   └── requirements.pdf     # Original requirements
-└── data/
-    └── database.sqlite      # SQLite database (auto-created)
+├── data/
+│   └── database.sqlite      # SQLite database (auto-created)
+├── tailwind.config.js       # Tailwind CSS configuration
+├── postcss.config.js        # PostCSS configuration
+└── package.json             # Project dependencies and scripts
 ```
 
 ## 🧑‍💻 Development Workflow
@@ -672,19 +843,36 @@ Note: All users must be created via authenticated endpoints:
    - `user-test.http`: User creation and permissions testing
 
 3. **Making Changes**:
-   - Services are in `apps/api/src/app/services/`
-   - DTOs are in `libs/data/src/lib/dto/`
-   - Guards are in `libs/auth/src/lib/guards/`
+   - Backend Services: `apps/api/src/app/services/`
+   - Frontend Components: `apps/dashboard/src/app/components/`
+   - DTOs: `libs/data/src/lib/dto/`
+   - Guards: `libs/auth/src/lib/guards/`
+
+### Frontend Development Notes
+
+#### Tailwind CSS Configuration
+- **Config File**: `tailwind.config.js` in project root
+- **PostCSS Config**: `postcss.config.js` in project root  
+- **Global Styles**: `apps/dashboard/src/styles.scss`
+- **Utility Classes**: Automatically generated based on template usage
+- **Version**: Tailwind CSS v3 (compatible with Angular 17)
+
+#### Angular 17 Setup
+- **TypeScript**: Version 5.4.x (required by Angular 17)
+- **NX Version**: 21.1.3 (compatible with Angular 17)
+- **Standalone**: Using NgModule architecture (not standalone components)
 
 ## 🔄 Future Enhancements
 
-### Frontend Development (Priority)
-- [ ] Angular Dashboard Application
-- [ ] User Authentication UI (Login)
-- [ ] Task Management Interface
-- [ ] Organization Management
+### Frontend Development (In Progress)
+- [x] Angular Dashboard Application (Setup Complete)
+- [x] Tailwind CSS v3 Integration
+- [ ] User Authentication UI (Login/Logout)
+- [ ] Task Management Interface (CRUD)
+- [ ] Organization Management Dashboard
 - [ ] Role-based UI Components
-- [ ] Responsive Design with TailwindCSS
+- [ ] Responsive Mobile Design
+- [ ] Dark Mode Support
 
 ### API Improvements
 - [ ] Pagination for all list endpoints

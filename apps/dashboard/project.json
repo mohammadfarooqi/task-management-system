@@ -19,7 +19,8 @@
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/dashboard/public"
+            "input": "apps/dashboard/public",
+            "output": "/"
           }
         ],
         "styles": ["apps/dashboard/src/styles.scss"]
