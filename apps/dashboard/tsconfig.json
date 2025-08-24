@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noPropertyAccessFromIndexSignature": true,
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": false,
+    "module": "preserve",
+    "emitDeclarationOnly": false,
+    "composite": false
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}
