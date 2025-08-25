@@ -6,7 +6,7 @@ import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserRole } from '../entities/user-role.entity';
-import { LoginDto, LoginResponseDto } from '@task-management-system/data';
+import { LoginDto, LoginResponseDto, JwtPayload } from '@task-management-system/data';
 
 @Injectable()
 export class AuthService {
@@ -40,11 +40,13 @@ export class AuthService {
     const role = userRole?.role?.name || 'Viewer';
 
     // Generate JWT token
-    const payload = {
+    const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
       sub: user.id,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
       organizationId: user.organizationId,
-      role, // Single role instead of array
+      role: role as any, // Will be string at runtime but typed as RoleType
     };
     const accessToken = this.jwtService.sign(payload);
 

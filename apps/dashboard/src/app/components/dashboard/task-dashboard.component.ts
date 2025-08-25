@@ -85,13 +85,7 @@ export class TaskDashboardComponent implements OnInit {
         console.error('Error loading tasks:', error);
         this.isLoading = false;
 
-        if (error.status === 401) {
-          // Token expired or invalid, redirect to login
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        } else {
-          this.errorMessage = error.error?.message || 'Failed to load tasks';
-        }
+        this.errorMessage = error.error?.message || 'Failed to load tasks';
       }
     });
   }
@@ -233,7 +227,7 @@ export class TaskDashboardComponent implements OnInit {
           if (!b.dueDate) return -1; // b goes after a
           return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
 
-        case 'priority':
+        case 'priority': {
           // High -> Medium -> Low
           const priorityValue = (priority: string) => {
             if (priority === 'high') return 0;
@@ -241,8 +235,9 @@ export class TaskDashboardComponent implements OnInit {
             return 2; // low
           };
           return priorityValue(a.priority) - priorityValue(b.priority);
+        }
 
-        case 'status':
+        case 'status': {
           // Pending -> In Progress -> Completed
           const statusValue = (status: string) => {
             if (status === 'pending') return 0;
@@ -250,6 +245,7 @@ export class TaskDashboardComponent implements OnInit {
             return 2; // completed
           };
           return statusValue(a.status) - statusValue(b.status);
+        }
 
         case 'title':
           // Alphabetical A-Z

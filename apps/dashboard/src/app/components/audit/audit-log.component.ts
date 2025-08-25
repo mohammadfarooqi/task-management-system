@@ -98,11 +98,8 @@ export class AuditLogComponent implements OnInit {
       error: (error) => {
         console.error('Error loading audit logs:', error);
         this.isLoading = false;
-        
-        if (error.status === 401) {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        } else if (error.status === 403) {
+
+        if (error.status === 403) {
           this.errorMessage = 'You do not have permission to view audit logs';
           setTimeout(() => this.router.navigate(['/dashboard']), 2000);
         } else {

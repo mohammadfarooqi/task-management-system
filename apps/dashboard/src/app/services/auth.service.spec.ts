@@ -51,15 +51,10 @@ describe('AuthService', () => {
       expect(req.request.body).toEqual({ email: 'test@example.com', password: 'password' });
       req.flush(mockResponse);
 
-      // Check localStorage
+      // Check that only token is stored in localStorage
       expect(localStorage.getItem('accessToken')).toBe('mock-jwt-token');
-      expect(service.getCurrentUser()).toEqual({
-        id: 1,
-        email: 'test@example.com',
-        firstName: 'Test',
-        lastName: 'User',
-        role: 'Admin'
-      });
+      expect(localStorage.getItem('user')).toBeNull();
+      expect(localStorage.getItem('userRole')).toBeNull();
     });
 
     it('should handle login failure', () => {
@@ -81,17 +76,14 @@ describe('AuthService', () => {
   });
 
   describe('logout', () => {
-    it('should clear localStorage on logout', () => {
-      // Setup: Add items to localStorage
+    it('should clear token from localStorage on logout', () => {
+      // Setup: Add token to localStorage
       localStorage.setItem('accessToken', 'test-token');
-      localStorage.setItem('user', JSON.stringify({ id: 1, email: 'test@example.com' }));
-      localStorage.setItem('userRole', 'Admin');
 
       service.logout();
 
       expect(localStorage.getItem('accessToken')).toBeNull();
-      expect(localStorage.getItem('user')).toBeNull();
-      expect(localStorage.getItem('userRole')).toBeNull();
+      expect(service.getCurrentUser()).toBeNull();
     });
   });
 
@@ -107,35 +99,26 @@ describe('AuthService', () => {
   });
 
   describe('getCurrentUser', () => {
-    it('should return user after successful login', () => {
-      const mockResponse = {
-        success: true,
-        data: {
-          user: {
-            id: 1,
-            email: 'test@example.com',
-            firstName: 'Test',
-            lastName: 'User'
-          },
-          accessToken: 'mock-jwt-token',
-          role: 'Admin'
-        },
-        message: 'Login successful'
-      };
-
-      service.login({ email: 'test@example.com', password: 'password' }).subscribe();
-
-      const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
-      req.flush(mockResponse);
+    it('should decode JWT and return user data', () => {
+      // Create a mock JWT token with proper payload
+      // This is a real JWT with payload: {sub: 1, email: 'test@example.com', organizationId: 1, role: 'Admin'}
+      const mockJWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsIm9yZ2FuaXphdGlvbklkIjoxLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6OTk5OTk5OTk5OX0.signature';
+      localStorage.setItem('accessToken', mockJWT);
       
       const currentUser = service.getCurrentUser();
-      expect(currentUser).toEqual({
-        ...mockResponse.data.user,
-        role: mockResponse.data.role
-      });
+      expect(currentUser).toBeTruthy();
+      expect(currentUser?.id).toBe(1);
+      expect(currentUser?.email).toBe('test@example.com');
+      expect(currentUser?.organizationId).toBe(1);
+      expect(currentUser?.role).toBe('Admin');
     });
 
-    it('should return null when no user in localStorage', () => {
+    it('should return null when no token exists', () => {
+      expect(service.getCurrentUser()).toBeNull();
+    });
+
+    it('should return null for invalid token', () => {
+      localStorage.setItem('accessToken', 'invalid-token');
       expect(service.getCurrentUser()).toBeNull();
     });
   });

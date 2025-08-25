@@ -2,13 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { LoginDto, LoginResponseDto, ApiResponse } from '@task-management-system/data';
+import { LoginDto, LoginResponseDto, ApiResponse, JwtPayload } from '@task-management-system/data';
 import { environment } from '../../environments/environment';
+import { jwtDecode } from 'jwt-decode';
 
-export interface User extends Omit<LoginResponseDto['user'], 'createdAt' | 'updatedAt'> {
+export interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  organizationId: number;
   role: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  isActive: boolean;
 }
 
 @Injectable({
@@ -29,12 +34,10 @@ export class AuthService {
       .pipe(
         tap(response => {
           if (response.success && response.data) {
-            // Store token and user info
+            // Store only the token
             window.localStorage.setItem('accessToken', response.data.accessToken);
-            window.localStorage.setItem('user', JSON.stringify(response.data.user));
-            window.localStorage.setItem('userRole', response.data.role);
 
-            // Update current user subject
+            // Update current user subject with decoded token data
             this.currentUserSubject.next({
               ...response.data.user,
               role: response.data.role
@@ -45,10 +48,8 @@ export class AuthService {
   }
 
   logout(): void {
-    // Clear localStorage
+    // Clear only the token from localStorage
     window.localStorage.removeItem('accessToken');
-    window.localStorage.removeItem('user');
-    window.localStorage.removeItem('userRole');
 
     // Clear current user
     this.currentUserSubject.next(null);
@@ -59,7 +60,33 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    // If we have a cached user, return it
+    if (this.currentUserSubject.value) {
+      return this.currentUserSubject.value;
+    }
+
+    // Otherwise, try to decode the token
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded = jwtDecode<JwtPayload>(token);
+        const user: User = {
+          id: decoded.sub,
+          email: decoded.email,
+          firstName: decoded.firstName,
+          lastName: decoded.lastName,
+          organizationId: decoded.organizationId,
+          role: decoded.role,
+          isActive: true // User must be active to have valid JWT
+        };
+        this.currentUserSubject.next(user);
+        return user;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
+    }
+    return null;
   }
 
   isLoggedIn(): boolean {
@@ -68,15 +95,30 @@ export class AuthService {
 
   private loadUserFromStorage(): void {
     const token = this.getToken();
-    const userStr = window.localStorage.getItem('user');
-    const role = window.localStorage.getItem('userRole');
 
-    if (token && userStr && role) {
+    if (token) {
       try {
-        const user = JSON.parse(userStr);
-        this.currentUserSubject.next({ ...user, role });
+        const decoded = jwtDecode<JwtPayload>(token);
+        
+        // Check if token is expired
+        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+          this.logout();
+          return;
+        }
+
+        // Set user from JWT payload
+        const user: User = {
+          id: decoded.sub,
+          email: decoded.email,
+          firstName: decoded.firstName,
+          lastName: decoded.lastName,
+          organizationId: decoded.organizationId,
+          role: decoded.role,
+          isActive: true // User must be active to have valid JWT
+        };
+        this.currentUserSubject.next(user);
       } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
+        console.error('Error decoding token:', error);
         this.logout();
       }
     }
