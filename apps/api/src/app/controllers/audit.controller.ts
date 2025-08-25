@@ -8,7 +8,7 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @Roles(RoleType.OWNER, RoleType.ADMIN)
+  @Roles(RoleType.SYSTEM_ADMIN, RoleType.OWNER, RoleType.ADMIN)
   @UseGuards(RolesGuard)
   async getAuditLogs(@Query() query: AuditLogFiltersDto, @Request() req: any) {
     // Role check is now handled by @Roles decorator and RolesGuard

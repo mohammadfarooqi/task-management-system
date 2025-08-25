@@ -324,4 +324,15 @@ export class TaskDashboardComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  // Navigation methods
+  goToAuditLogs(): void {
+    this.router.navigate(['/audit-logs']);
+  }
+
+  canViewAuditLogs(): boolean {
+    if (!this.currentUser) return false;
+    // Only SystemAdmin, Owner, and Admin can view audit logs
+    return ['SystemAdmin', 'Owner', 'Admin'].includes(this.currentUser.role);
+  }
 }

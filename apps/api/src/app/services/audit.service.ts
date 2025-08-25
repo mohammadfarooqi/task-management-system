@@ -24,6 +24,8 @@ export class AuditService {
       userId?: number;
       action?: string;
       resourceType?: string;
+      startDate?: string;
+      endDate?: string;
       page?: number;
       limit?: number;
     } = {}
@@ -45,6 +47,14 @@ export class AuditService {
 
     if (filters.resourceType) {
       queryBuilder.andWhere('audit.resourceType = :resourceType', { resourceType: filters.resourceType });
+    }
+
+    if (filters.startDate) {
+      queryBuilder.andWhere('audit.createdAt >= :startDate', { startDate: filters.startDate });
+    }
+
+    if (filters.endDate) {
+      queryBuilder.andWhere('audit.createdAt <= :endDate', { endDate: filters.endDate });
     }
 
     queryBuilder

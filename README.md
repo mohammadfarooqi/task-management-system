@@ -30,7 +30,7 @@ This project uses an NX monorepo structure with:
   - Note: PDF specifies 3 roles (Owner, Admin, Viewer). SystemAdmin added for platform management
 - **Organization Hierarchy**: 2-level parent-child organization structure
 - **Task Management**: Full CRUD operations with role-based permissions
-- **Audit Logging**: Comprehensive tracking of all system actions
+- **Audit Logging**: Comprehensive tracking of all system actions with UI dashboard
 - **TypeORM with SQLite**: Lightweight database with automatic migrations
 
 ### Task Data Model
@@ -61,7 +61,7 @@ Viewer (Lowest)
 
 #### Permission Matrix
 
-| Role | Create Task | Edit Task | Delete Task | View Tasks | Manage Users | Audit Logs | Manage Orgs |
+| Role | Create Task | Edit Task | Delete Task | View Tasks | Manage Users | View Audit Logs | Manage Orgs |
 |------|------------|-----------|-------------|------------|--------------|------------|-------------|
 | **SystemAdmin** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ✅ |
 | **Owner** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ❌ |
@@ -81,7 +81,7 @@ Viewer (Lowest)
 - **Full Control**: Can perform any action on any task within their organization hierarchy
 - **Task Management**: Create, edit, delete ANY task in their org or child orgs
 - **User Management**: Can manage users and role assignments
-- **Audit Access**: Full access to audit logs
+- **Audit Access**: Full access to audit logs through dedicated UI dashboard
 - **Example**: The CEO who needs complete oversight and control
 
 ##### Admin Role
@@ -717,32 +717,58 @@ Response:
 }
 ```
 
-### Audit Log Endpoints (Admin/Owner only)
+### Audit Log Endpoints (SystemAdmin/Owner/Admin only)
 
 #### Get Audit Logs
 ```http
 GET /api/audit-log
 GET /api/audit-log?action=task:created&limit=10
 GET /api/audit-log?userId=2&page=1&limit=5
+GET /api/audit-log?startDate=2025-08-18T00:00:00Z&endDate=2025-08-25T23:59:59Z
 ```
+
+Query Parameters:
+- `userId`: Filter by specific user ID
+- `action`: Filter by action type (e.g., "task:created", "user:login")
+- `resourceType`: Filter by resource type (e.g., "task", "user")
+- `startDate`: Filter logs from this date (ISO 8601 format)
+- `endDate`: Filter logs until this date (ISO 8601 format)
+- `page`: Page number for pagination (default: 1)
+- `limit`: Number of records per page (default: 50)
 
 Response:
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "id": 1,
-      "userId": 1,
-      "action": "task:created",
-      "resourceType": "task",
-      "resourceId": 1,
-      "organizationId": 1,
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "userId": 1,
+        "action": "task:created",
+        "resourceType": "task",
+        "resourceId": 1,
+        "organizationId": 1,
+        "details": {},
+        "ipAddress": "::1",
+        "userAgent": "Mozilla/5.0...",
+        "createdAt": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "limit": 50,
+    "totalPages": 2
+  }
 }
 ```
+
+#### Audit Log UI Dashboard
+The frontend includes a comprehensive audit log dashboard accessible to SystemAdmin, Owner, and Admin roles:
+- **Access**: Click "Audit Logs" button in the task dashboard header
+- **Filtering**: Filter by date range, action, resource type, and user ID
+- **Visual Indicators**: Color-coded action badges for easy scanning
+- **Permission-based**: Only visible to users with appropriate roles
 
 ## 🗄️ Data Model
 
@@ -811,7 +837,7 @@ Response:
 - **Password Hashing**: bcrypt with configurable rounds (default: 12)
 - **JWT Tokens**: Configurable expiration (default: 24 hours)
 - **Global Auth Guard**: All routes protected by default
-- **Role-Based Guards**: Fine-grained access control
+- **Role-Based Guards**: Fine-grained access control with single role per user
 - **Audit Logging**: Track all sensitive operations
 
 ## 📁 Project Structure

@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/auth.decorators';
-import { RoleType, hasPermission } from '@task-management-system/data';
+import { RoleType } from '@task-management-system/data';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -27,24 +27,25 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    const userRoles: string[] = user.roles || [];
+    // Get the user's single role from JWT
+    const userRole = user.role;
 
-    // Map string roles to RoleType enum (handle both cases)
-    const userRoleTypes = userRoles.map(role => {
-      // Handle both 'Owner' and 'OWNER' formats
-      const upperRole = role.toUpperCase();
-      return RoleType[upperRole as keyof typeof RoleType];
-    }).filter(Boolean);
+    if (!userRole) {
+      throw new ForbiddenException(
+        `Access denied. No role found for user.`
+      );
+    }
 
-    // Check if user has permission for at least one of the required roles
-    // Using role hierarchy: Owner > Admin > Viewer
-    const hasRequiredPermission = requiredRoles.some(requiredRole =>
-      userRoleTypes.some(userRole => hasPermission(userRole, requiredRole))
-    );
+    // Check if user's role matches any of the required roles
+    // Compare the role string value directly with the RoleType enum values
+    const hasRequiredPermission = requiredRoles.some(requiredRole => {
+      // requiredRole is a RoleType enum value (e.g., 'SystemAdmin')
+      return userRole === requiredRole;
+    });
 
     if (!hasRequiredPermission) {
       throw new ForbiddenException(
-        `Access denied. Required roles: ${requiredRoles.join(', ')}. Your roles: ${userRoles.join(', ') || 'none'}`
+        `Access denied. Required roles: ${requiredRoles.join(', ')}. Your role: ${userRole}`
       );
     }
 

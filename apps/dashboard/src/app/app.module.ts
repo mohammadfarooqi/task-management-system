@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/auth/login.component';
 import { TaskDashboardComponent } from './components/dashboard/task-dashboard.component';
 import { TaskFormComponent } from './components/tasks/task-form.component';
+import { AuditLogComponent } from './components/audit/audit-log.component';
 import { appRoutes } from './app.routes';
 
 @NgModule({
@@ -17,6 +18,7 @@ import { appRoutes } from './app.routes';
     LoginComponent,
     TaskDashboardComponent,
     TaskFormComponent,
+    AuditLogComponent,
   ],
   imports: [
     BrowserModule,
