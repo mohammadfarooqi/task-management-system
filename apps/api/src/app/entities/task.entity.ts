@@ -29,19 +29,12 @@ export class Task {
   @Column({ name: 'created_by' })
   createdBy!: number;
 
-  @Column({ name: 'assigned_to', nullable: true })
-  assignedTo?: number;
-
   @Column({ name: 'organization_id' })
   organizationId!: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
   creator?: User;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'assigned_to' })
-  assignee?: User;
 
   @ManyToOne(() => Organization)
   @JoinColumn({ name: 'organization_id' })

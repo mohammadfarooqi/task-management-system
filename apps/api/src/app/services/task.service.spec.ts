@@ -21,7 +21,6 @@ describe('TaskService', () => {
     category: TaskCategory.WORK,
     dueDate: null,
     createdBy: 1,
-    assignedTo: 2,
     organizationId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -102,7 +101,6 @@ describe('TaskService', () => {
         priority: TaskPriority.HIGH,
         category: createTaskDto.category,
         dueDate: undefined,
-        assignedTo: undefined,
         createdBy: userId,
         organizationId,
       });
@@ -179,7 +177,7 @@ describe('TaskService', () => {
       const userId = 3;
       const organizationId = 1;
       const userRole = 'Viewer';
-      const tasks = [{ ...mockTask, assignedTo: userId }];
+      const tasks = [{ ...mockTask, createdBy: userId }];
 
       mockOrganizationService.getOrganizationHierarchyIds.mockResolvedValue([1]);
       mockQueryBuilder.getMany.mockResolvedValue(tasks);
@@ -187,7 +185,7 @@ describe('TaskService', () => {
       const result = await service.findAll(userId, organizationId, userRole);
 
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        '(task.createdBy = :userId OR task.assignedTo = :userId)',
+        'task.createdBy = :userId',
         { userId }
       );
       expect(result).toEqual(tasks);
@@ -272,7 +270,6 @@ describe('TaskService', () => {
         priority: TaskPriority.HIGH,
         category: replaceDto.category,
         dueDate: undefined,
-        assignedTo: undefined,
       });
     });
 

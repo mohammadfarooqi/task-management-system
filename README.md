@@ -40,7 +40,6 @@ This project uses an NX monorepo structure with:
 | priority | enum | No | `low`, `medium`, `high` | Task priority level (default: `medium`) |
 | category | enum | No | `work`, `personal`, `other` | Task category (default: `work`) |
 | dueDate | date | No | Valid date | Task due date |
-| assignedTo | number | No | Valid user ID | User assigned to the task |
 
 ### Role-Based Access Control (RBAC)
 
@@ -616,8 +615,7 @@ Content-Type: application/json
   "title": "Task title",
   "description": "Task description",
   "priority": "high",
-  "category": "work",
-  "assignedTo": 2
+  "category": "work"
 }
 ```
 
@@ -633,7 +631,6 @@ Response:
     "priority": "high",
     "category": "work",
     "createdBy": 1,
-    "assignedTo": 2,
     "organizationId": 1
   },
   "message": "Task created successfully"
@@ -654,8 +651,7 @@ Response:
       "id": 1,
       "title": "Task title",
       "status": "pending",
-      "priority": "high",
-      "assignedTo": 2
+      "priority": "high"
     }
   ]
 }
@@ -678,7 +674,6 @@ Response:
     "priority": "high",
     "category": "work",
     "createdBy": 1,
-    "assignedTo": 2,
     "organizationId": 1
   }
 }
@@ -789,7 +784,6 @@ Response:
 │ category     │         │ changes      │
 │ dueDate      │         │ ipAddress    │
 │ createdBy(FK)│         │ userAgent    │
-│ assignedTo(FK)│        │ createdAt    │
 │ orgId (FK)   │         └──────────────┘
 └──────────────┘
 ```
@@ -798,7 +792,7 @@ Response:
 - **Organization**: Self-referencing for parent-child hierarchy (max 2 levels)
 - **User → Organization**: Many-to-one (users belong to one org)
 - **User → Role**: One-to-one through UserRole (each user has exactly one role)
-- **Task → User**: Two relationships (createdBy and assignedTo)
+- **Task → User**: Relationship through createdBy
 - **Task → Organization**: Tasks belong to organizations
 - **AuditLog → User**: Tracks which user performed actions
 

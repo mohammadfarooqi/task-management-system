@@ -32,7 +32,6 @@ export class TaskService {
       priority: (createTaskDto.priority as TaskPriority) || TaskPriority.MEDIUM,
       category: createTaskDto.category,
       dueDate: createTaskDto.dueDate,
-      assignedTo: createTaskDto.assignedTo,
       createdBy: userId,
       organizationId,
     });
@@ -51,8 +50,7 @@ export class TaskService {
 
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
-      .leftJoinAndSelect('task.creator', 'creator')
-      .leftJoinAndSelect('task.assignee', 'assignee');
+      .leftJoinAndSelect('task.creator', 'creator');
 
     // Include tasks from all organizations in the hierarchy
     if (orgIds.length > 1) {
@@ -63,9 +61,9 @@ export class TaskService {
 
     // role-based filtering
     if (!canViewAllOrgTasks(userRole)) {
-      // Viewers can only see tasks they created or are assigned to
+      // Viewers can only see tasks they created
       queryBuilder.andWhere(
-        '(task.createdBy = :userId OR task.assignedTo = :userId)',
+        'task.createdBy = :userId',
         { userId }
       );
     }
@@ -81,7 +79,7 @@ export class TaskService {
 
     const task = await this.taskRepository.findOne({
       where: { id },
-      relations: ['creator', 'assignee'],
+      relations: ['creator'],
     });
 
     if (!task) {
@@ -98,8 +96,7 @@ export class TaskService {
     const canAccess =
       canAccessOrg && // User's org has access to task's org
       (canViewAllOrgTasks(userRole) ||
-       task.createdBy === userId ||
-       task.assignedTo === userId);
+       task.createdBy === userId);
 
     if (!canAccess) {
       throw new ForbiddenException('Access denied to this task');
@@ -130,7 +127,6 @@ export class TaskService {
       priority: replaceTaskDto.priority as TaskPriority,
       category: replaceTaskDto.category,
       dueDate: replaceTaskDto.dueDate,
-      assignedTo: replaceTaskDto.assignedTo
     });
 
     return this.findOne(id, userId, organizationId, userRole);

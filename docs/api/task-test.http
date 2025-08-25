@@ -71,8 +71,7 @@ Authorization: Bearer {{ownerToken}}
   "title": "Strategic planning",
   "description": "Plan Q4 roadmap",
   "priority": "medium",
-  "category": "other",
-  "assignedTo": 2
+  "category": "other"
 }
 
 ### 7. ADMIN: View all tasks (should see all org tasks)
@@ -116,7 +115,7 @@ Authorization: Bearer {{viewerToken}}
   "description": "Viewers cannot create tasks"
 }
 
-### 13. VIEWER: View tasks (should only see assigned tasks, empty if none)
+### 13. VIEWER: View tasks (should only see created tasks, empty if none)
 GET {{baseUrl}}/tasks
 Authorization: Bearer {{viewerToken}}
 

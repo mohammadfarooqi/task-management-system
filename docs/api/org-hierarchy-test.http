@@ -50,7 +50,7 @@ Content-Type: {{contentType}}
 
 ### ========== TEST: Parent Org Can Create Tasks for Child Org ==========
 
-### 5. Parent Org Admin: Create task for child org (assignedTo child org user)
+### 5. Parent Org Admin: Create task for parent org
 POST {{baseUrl}}/tasks
 Content-Type: {{contentType}}
 Authorization: Bearer {{parentOrgAdminToken}}
@@ -59,8 +59,7 @@ Authorization: Bearer {{parentOrgAdminToken}}
   "title": "Complete sprint tasks",
   "description": "Finish all tasks for current sprint",
   "priority": "high",
-  "category": "work",
-  "assignedTo": 3
+  "category": "work"
 }
 
 ### 6. Parent Org Owner: Create task for parent org
@@ -81,7 +80,7 @@ Authorization: Bearer {{parentOrgOwnerToken}}
 GET {{baseUrl}}/tasks
 Authorization: Bearer {{parentOrgAdminToken}}
 
-### 8. Child Org User: View tasks (should only see assigned tasks)
+### 8. Child Org User: View tasks (should only see their created tasks)
 GET {{baseUrl}}/tasks
 Authorization: Bearer {{childOrgUserToken}}
 
