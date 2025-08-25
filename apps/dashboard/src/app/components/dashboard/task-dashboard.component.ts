@@ -297,7 +297,7 @@ export class TaskDashboardComponent implements OnInit {
   // }
 
   deleteTaskConfirm(task: Task): void {
-    if (confirm(`Are you sure you want to delete "${task.title}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${task.title}"?`)) {
       this.deleteTask(task.id);
     }
   }
@@ -309,12 +309,12 @@ export class TaskDashboardComponent implements OnInit {
           console.log('Task deleted successfully');
           this.loadTasks(); // Reload tasks
         } else {
-          alert('Failed to delete task: ' + (response.message || 'Unknown error'));
+          window.alert('Failed to delete task: ' + (response.message || 'Unknown error'));
         }
       },
       error: (error) => {
         console.error('Error deleting task:', error);
-        alert('Failed to delete task: ' + (error.error?.message || 'Unknown error'));
+        window.alert('Failed to delete task: ' + (error.error?.message || 'Unknown error'));
       }
     });
   }

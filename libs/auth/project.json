@@ -4,17 +4,6 @@
   "projectType": "library",
   "tags": ["shared"],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/auth",
-        "tsConfig": "libs/auth/tsconfig.lib.json",
-        "packageJson": "libs/auth/package.json",
-        "main": "libs/auth/src/index.ts",
-        "assets": ["libs/auth/*.md"]
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

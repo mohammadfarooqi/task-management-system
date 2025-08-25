@@ -1,22 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@task-management-system/data": ["../data/src/index.ts"],
-      "@task-management-system/auth": ["./src/index.ts"]
-    },
-    "rootDir": "src",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "outDir": "../../dist/libs/auth",
+    "declaration": true,
+    "composite": false,
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": ["node"],
+    "rootDir": "../../"
   },
-  "include": ["src/**/*.ts"],
-  "references": [
-    {
-      "path": "../data/tsconfig.lib.json"
-    }
-  ]
+  "include": [
+    "src/**/*.ts",
+    "../data/src/**/*.ts"
+  ],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "../data/src/**/*.spec.ts", "../data/src/**/*.test.ts"]
 }

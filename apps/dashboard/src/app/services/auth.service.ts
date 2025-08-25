@@ -30,9 +30,9 @@ export class AuthService {
         tap(response => {
           if (response.success && response.data) {
             // Store token and user info
-            localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            localStorage.setItem('userRole', response.data.role);
+            window.localStorage.setItem('accessToken', response.data.accessToken);
+            window.localStorage.setItem('user', JSON.stringify(response.data.user));
+            window.localStorage.setItem('userRole', response.data.role);
 
             // Update current user subject
             this.currentUserSubject.next({
@@ -46,16 +46,16 @@ export class AuthService {
 
   logout(): void {
     // Clear localStorage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('userRole');
+    window.localStorage.removeItem('accessToken');
+    window.localStorage.removeItem('user');
+    window.localStorage.removeItem('userRole');
 
     // Clear current user
     this.currentUserSubject.next(null);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return window.localStorage.getItem('accessToken');
   }
 
   getCurrentUser(): User | null {
@@ -68,8 +68,8 @@ export class AuthService {
 
   private loadUserFromStorage(): void {
     const token = this.getToken();
-    const userStr = localStorage.getItem('user');
-    const role = localStorage.getItem('userRole');
+    const userStr = window.localStorage.getItem('user');
+    const role = window.localStorage.getItem('userRole');
 
     if (token && userStr && role) {
       try {

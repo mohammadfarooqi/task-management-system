@@ -328,9 +328,6 @@ npm run build:api
 
 # Build the dashboard
 npm run build:dashboard
-
-# Build libraries
-npm run build:libs
 ```
 
 #### Running Production Build
@@ -354,13 +351,9 @@ npm test
 npm run test:api          # API tests (backend)
 npm run test:dashboard    # Dashboard tests (frontend - includes component and service tests)
 npm run test:auth         # Auth library tests
-npm run test:data         # Data library tests
 
 # Run tests with coverage
 npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
 
 # Test only affected projects (based on git changes)
 npm run test:affected
@@ -410,21 +403,6 @@ npx nx g @nx/angular:service task --project=dashboard --path=apps/dashboard/src/
 npx nx g @nx/angular:guard apps/dashboard/src/app/guards/auth
 ```
 
-#### NestJS Components (API)
-```bash
-# Generate a new module
-npm run g:api-module -- --name=users --project=api
-
-# Generate a controller
-npm run g:api-controller -- --name=users --project=api
-
-# Generate a service
-npm run g:api-service -- --name=users --project=api
-
-# Generate a complete resource (module, controller, service, DTOs)
-npm run g:api-resource -- --name=projects --project=api
-```
-
 ### Code Quality
 
 #### Linting
@@ -438,9 +416,6 @@ npm run lint:dashboard
 
 # Auto-fix linting issues
 npm run lint:fix
-
-# Lint only affected projects
-npm run affected:lint
 ```
 
 #### Formatting
@@ -467,9 +442,6 @@ npm run graph
 # Reset NX cache
 npm run reset
 
-# Build only affected projects
-npm run affected:build
-
 # Clean build artifacts and cache
 npm run clean
 
@@ -495,17 +467,6 @@ npx nx g @nx/angular:service auth --project=dashboard --path=apps/dashboard/src/
 
 # 3. Start the dev server to see it
 npm run dev:dashboard
-```
-
-#### Creating a New API Endpoint
-```bash
-# Generate a complete resource with CRUD operations
-npm run g:api-resource -- --name=comments --project=api
-
-# Or generate individually:
-npm run g:api-module -- --name=comments --project=api
-npm run g:api-controller -- --name=comments --project=api --path=apps/api/src/app/comments
-npm run g:api-service -- --name=comments --project=api --path=apps/api/src/app/comments
 ```
 
 ## 📚 API Documentation

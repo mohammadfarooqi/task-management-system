@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
-import { TaskStatus, TaskPriority } from '@task-management-system/data';
+import { TaskStatus, TaskPriority, TaskCategory } from '@task-management-system/data';
 import { CreateTaskDto, ReplaceTaskDto, hasRolePermission, canViewAllOrgTasks, canEditSpecificTask, RoleType } from '@task-management-system/data';
 import { OrganizationService } from './organization.service';
 
@@ -30,7 +30,7 @@ export class TaskService {
       description: createTaskDto.description,
       status: (createTaskDto.status as TaskStatus) || TaskStatus.PENDING,
       priority: (createTaskDto.priority as TaskPriority) || TaskPriority.MEDIUM,
-      category: createTaskDto.category,
+      category: createTaskDto.category as TaskCategory,
       dueDate: createTaskDto.dueDate,
       createdBy: userId,
       organizationId,
@@ -125,7 +125,7 @@ export class TaskService {
       description: replaceTaskDto.description,
       status: replaceTaskDto.status as TaskStatus,
       priority: replaceTaskDto.priority as TaskPriority,
-      category: replaceTaskDto.category,
+      category: replaceTaskDto.category as TaskCategory,
       dueDate: replaceTaskDto.dueDate,
     });
 

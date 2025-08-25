@@ -1,7 +1,6 @@
-import { Controller, Post, Body, Param, ParseIntPipe, UseGuards, Request, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Param, ParseIntPipe, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { Roles, RolesGuard } from '@task-management-system/auth';
 import { RoleType } from '@task-management-system/data';
-import { OrganizationService } from '../services/organization.service';
 import { UserService } from '../services/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,7 +21,6 @@ interface CreateOwnerDto {
 @Controller('organizations')
 export class OrganizationController {
   constructor(
-    private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
@@ -31,7 +29,7 @@ export class OrganizationController {
   @Post()
   @Roles(RoleType.SYSTEM_ADMIN)
   @UseGuards(RolesGuard)
-  async createOrganization(@Body() createOrgDto: CreateOrganizationDto, @Request() req: any) {
+  async createOrganization(@Body() createOrgDto: CreateOrganizationDto) {
     // Check if parent organization exists if parentId is provided
     if (createOrgDto.parentId) {
       const parentOrg = await this.organizationRepository.findOne({
@@ -65,8 +63,7 @@ export class OrganizationController {
   @UseGuards(RolesGuard)
   async createOwnerForOrganization(
     @Param('id', ParseIntPipe) organizationId: number,
-    @Body() createOwnerDto: CreateOwnerDto,
-    @Request() req: any
+    @Body() createOwnerDto: CreateOwnerDto
   ) {
     // Check if organization exists
     const organization = await this.organizationRepository.findOne({

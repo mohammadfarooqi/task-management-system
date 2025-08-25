@@ -19,7 +19,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
-    let error: any = {};
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -36,7 +35,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message = responseObj.message.join(', ');
         }
         
-        error = responseObj.error || {};
       }
     } else if (exception instanceof Error) {
       message = exception.message;

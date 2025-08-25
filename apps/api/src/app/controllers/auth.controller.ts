@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { Public, CurrentUser } from '@task-management-system/auth';
 import {
@@ -15,19 +15,13 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto): Promise<ApiResponse<LoginResponseDto>> {
-    try {
-      const result = await this.authService.login(loginDto);
+    const result = await this.authService.login(loginDto);
 
-      return {
-        success: true,
-        data: result,
-        message: 'Login successful',
-      };
-    } catch (error: any) {
-      // Let NestJS handle the error response with proper status code
-      // The auth service already throws UnauthorizedException for invalid credentials
-      throw error;
-    }
+    return {
+      success: true,
+      data: result,
+      message: 'Login successful',
+    };
   }
 
     @Get('profile')
