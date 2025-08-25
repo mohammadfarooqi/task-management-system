@@ -832,7 +832,9 @@ The frontend includes a comprehensive audit log dashboard accessible to SystemAd
 
 ### Backend Security
 - **Password Hashing**: bcrypt with configurable rounds (default: 12)
-- **JWT Tokens**: Configurable expiration (default: 24 hours) with `iat` and `exp` claims
+- **JWT Tokens**: Configurable expiration (default: 24 hours)
+  - Payload includes: `sub` (userId), `email`, `firstName`, `lastName`, `organizationId`, `role`
+  - Automatic `iat` and `exp` claims for token validation
 - **Global Auth Guard**: All API routes protected by default with JWT validation
 - **Role-Based Guards**: Fine-grained access control with single role per user
 - **Audit Logging**: Track all sensitive operations
@@ -943,10 +945,17 @@ Note: All users must be created via authenticated endpoints:
 - All other paths redirect to login
 
 #### Guard Implementation
-- **AuthGuard**: Checks for valid JWT token in localStorage
-- **RoleGuard**: Validates both authentication and role-based permissions
+- **AuthGuard**: Checks for valid JWT token
+- **RoleGuard**: Validates both authentication and role-based permissions by decoding JWT
 - Guards use Angular's `UrlTree` for automatic redirects
 - Unauthorized access results in redirect to login or dashboard
+
+#### Authentication Security
+- **Token Storage**: JWT stored in localStorage (temporary solution, HttpOnly cookies recommended for production)
+- **User Data**: User information extracted from JWT payload, not stored separately
+- **HTTP Interceptor**: Automatically attaches Authorization headers to protected routes
+- **401 Handling**: Interceptor redirects to login on token expiration
+- **Public Routes**: Login endpoint excluded from auth header injection
 
 ### Frontend Development Notes
 
@@ -998,7 +1007,7 @@ Note: All users must be created via authenticated endpoints:
   - Client-side approach provides instant feedback and better UX for current dataset sizes
   - Server-side would be beneficial for very large datasets (1000+ tasks)
   - Would add query parameters: `?status=pending&priority=high&category=work&sortBy=createdAt`
-- [ ] Request/Response interceptors
+- [x] Request/Response interceptors (Auth interceptor with 401 handling)
 - [ ] API versioning
 
 ### Production Readiness
