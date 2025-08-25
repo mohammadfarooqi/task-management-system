@@ -64,7 +64,7 @@ Viewer (Lowest)
 | **SystemAdmin** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ✅ |
 | **Owner** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ❌ |
 | **Admin** | ✅ | ✅ All | ✅ All | ✅ All | ✅ Admin/Viewer | ✅ | ❌ |
-| **Viewer** | ❌ | ❌ | ❌ | ✅ Own/Assigned | ❌ | ❌ | ❌ |
+| **Viewer** | ❌ | ❌ | ❌ | ✅ Own only | ❌ | ❌ | ❌ |
 
 #### Detailed Role Permissions
 
@@ -91,13 +91,12 @@ Viewer (Lowest)
 
 ##### Viewer Role
 - **Read-Only**: Cannot create, edit, or delete any tasks
-- **Limited Visibility**: Can only see tasks they created or are assigned to
+- **Limited Visibility**: Can only see tasks they created
 - **No Management**: Cannot perform any administrative functions
-- **Example**: External consultants or junior team members who only need to track their assigned work
+- **Example**: External consultants or junior team members who only need to track their own work
 
 #### Key Permission Rules
 - **Task Visibility**: Based on organization membership and hierarchy
-- **Task Assignment**: Can only assign tasks to users in same or child organizations
 - **Single Role**: Each user has exactly one role (simplifies permission management)
 - **Default Role**: New users get Viewer role by default when registering publicly
 
@@ -184,12 +183,12 @@ Can do:
 - CANNOT see tasks from Marketing or Support (siblings)
 ```
 
-##### Example 3: Cross-Organization Task Assignment
+##### Example 3: Cross-Organization Task Visibility
 ```
-Scenario: Parent org Admin assigns task to child org user
+Scenario: Parent org Admin creates task
 
 User: admin@techcorp-holdings.com (Parent Admin)
-Action: Creates task and assigns to developer@techcorp-development.com
+Action: Creates task in TechCorp Holdings
 
 Result:
 - Task created in TechCorp Holdings
@@ -319,8 +318,8 @@ npx serve dist/apps/dashboard
 npm test
 
 # Run specific project tests
-npm run test:api          # API tests
-npm run test:dashboard    # Dashboard tests
+npm run test:api          # API tests (backend)
+npm run test:dashboard    # Dashboard tests (frontend - includes component and service tests)
 npm run test:auth         # Auth library tests
 npm run test:data         # Data library tests
 
@@ -333,6 +332,12 @@ npm run test:watch
 # Test only affected projects (based on git changes)
 npm run test:affected
 ```
+
+#### Frontend Test Coverage
+The dashboard includes comprehensive test suites for:
+- **Services**: AuthService (login/logout), TaskService (CRUD operations)
+- **Components**: LoginComponent (form validation, error handling), TaskDashboardComponent, TaskFormComponent
+- **Coverage**: Authentication flows, API interactions, error handling, UI state management
 
 ## 🛠️ Development Commands
 
@@ -878,7 +883,7 @@ TechCorp Holdings (Parent)
 | `admin@system.com` | `password123` | System | SystemAdmin | Platform administrator |
 | `owner@techcorp.com` | `password123` | TechCorp Holdings | Owner | Full org access |
 | `admin@techcorp.com` | `password123` | TechCorp Holdings | Admin | Can manage all org tasks |
-| `viewer@techcorp.com` | `password123` | TechCorp Holdings | Viewer | Read-only access to assigned tasks |
+| `viewer@techcorp.com` | `password123` | TechCorp Holdings | Viewer | Read-only access to own tasks |
 
 Note: All users must be created via authenticated endpoints:
 - SystemAdmin creates organizations and their owners via `/organizations` endpoints
@@ -927,7 +932,7 @@ Note: All users must be created via authenticated endpoints:
 - [x] Role-based UI Components
 - [x] Responsive Mobile Design
 - [ ] Organization Management Dashboard
-- [ ] Drag-and-drop for task status changes
+- [ ] Drag-and-drop for task reordering and status changes (Required per spec)
 - [ ] Dark Mode Support
 
 ### API Improvements
