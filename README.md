@@ -91,7 +91,7 @@ Viewer (Lowest)
 | **SystemAdmin** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ✅ |
 | **Owner** | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All roles | ✅ | ❌ |
 | **Admin** | ✅ | ✅ All | ✅ All | ✅ All | ✅ Admin/Viewer | ✅ | ❌ |
-| **Viewer** | ❌ | ❌ | ❌ | ✅ Own only | ❌ | ❌ | ❌ |
+| **Viewer** | ❌ | ❌ | ❌ | ✅ All (read-only) | ❌ | ❌ | ❌ |
 
 #### Detailed Role Permissions
 
@@ -118,12 +118,13 @@ Viewer (Lowest)
 
 ##### Viewer Role
 - **Read-Only**: Cannot create, edit, or delete any tasks
-- **Limited Visibility**: Can only see tasks they created
+- **Full Visibility**: Can see all tasks in their organization (but cannot modify them)
 - **No Management**: Cannot perform any administrative functions
-- **Example**: External consultants or junior team members who only need to track their own work
+- **Example**: Stakeholders, clients, or team members who need to monitor progress without making changes
 
 #### Key Permission Rules
-- **Task Visibility**: Based on organization membership and hierarchy
+- **Task Visibility**: All roles can see all tasks in their organization hierarchy
+- **Task Modification**: Only Owner and Admin can create, edit, or delete tasks
 - **Single Role**: Each user has exactly one role (simplifies permission management)
 - **Default Role**: New users get Viewer role by default when registering publicly
 

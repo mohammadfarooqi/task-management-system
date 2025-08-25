@@ -32,8 +32,9 @@ export function hasRolePermission(userRole: string, requiredRole: string): boole
 }
 
 export function canViewAllOrgTasks(userRole: string): boolean {
-  // SystemAdmin, Owner and Admin can view all tasks in their organization hierarchy
-  return userRole === 'SystemAdmin' || userRole === 'Owner' || userRole === 'Admin';
+  // SystemAdmin, Owner, Admin, and Viewer can view all tasks in their organization hierarchy
+  // Viewers have read-only access, so they can see but not modify tasks
+  return userRole === 'SystemAdmin' || userRole === 'Owner' || userRole === 'Admin' || userRole === 'Viewer';
 }
 
 export function canEditSpecificTask(userRole: string, _taskCreatedBy: number, _currentUserId: number): boolean {
