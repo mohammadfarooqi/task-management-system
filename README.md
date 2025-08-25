@@ -18,6 +18,9 @@ This project uses an NX monorepo structure with:
 - **Tailwind CSS v3**: Utility-first CSS framework for rapid UI development
 - **Responsive Design**: Mobile-first responsive layouts
 - **Component Architecture**: Modular and reusable components
+- **Task Filtering**: Client-side filtering by category (Work/Personal/Other), status, and priority
+- **Task Sorting**: Client-side sorting by creation date, due date, priority, status, or title
+- **Role-based UI**: Different permissions for Owner/Admin vs Viewer roles
 - **NX Monorepo**: Shared libraries and efficient build system
 
 ### Backend Features
@@ -909,20 +912,30 @@ Note: All users must be created via authenticated endpoints:
 
 ## 🔄 Future Enhancements
 
-### Frontend Development (In Progress)
-- [x] Angular Dashboard Application (Setup Complete)
+### Frontend Development
+- [x] Angular Dashboard Application
 - [x] Tailwind CSS v3 Integration
-- [x] Login Component Structure (components/auth/login)
-- [ ] User Authentication UI Implementation
-- [ ] Task Management Interface (CRUD)
+- [x] Login Component with JWT Authentication
+- [x] Task Management Interface (CRUD)
+  - [x] Create new tasks
+  - [x] Edit existing tasks
+  - [x] Delete tasks
+  - [x] Filter by Category (Work/Personal/Other)
+  - [x] Filter by Status (Pending/In Progress/Completed)
+  - [x] Filter by Priority (High/Medium/Low)
+  - [x] Sort by Date, Priority, Status, Title
+- [x] Role-based UI Components
+- [x] Responsive Mobile Design
 - [ ] Organization Management Dashboard
-- [ ] Role-based UI Components
-- [ ] Responsive Mobile Design
+- [ ] Drag-and-drop for task status changes
 - [ ] Dark Mode Support
 
 ### API Improvements
 - [ ] Pagination for all list endpoints
-- [ ] Advanced filtering and search
+- [ ] Server-side filtering and sorting
+  - Currently all filtering/sorting is done client-side in Angular
+  - Add query parameters: `?status=pending&priority=high&category=work&sortBy=createdAt`
+  - Would improve performance for large datasets
 - [ ] Request/Response interceptors
 - [ ] API versioning
 

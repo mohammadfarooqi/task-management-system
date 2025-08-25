@@ -19,12 +19,19 @@ export interface Task extends Omit<TaskBase, 'createdAt' | 'updatedAt' | 'dueDat
 export class TaskDashboardComponent implements OnInit {
   currentUser: User | null = null;
   tasks: Task[] = [];
+  filteredTasks: Task[] = [];
   isLoading = true;
   errorMessage = '';
 
   // Task form state
   showTaskForm = false;
   selectedTask: Task | null = null;
+
+  // Filter and sort state
+  categoryFilter = 'all';
+  statusFilter = 'all';
+  priorityFilter = 'all';
+  sortBy = 'createdAt';
 
   constructor(
     private authService: AuthService,
@@ -64,9 +71,11 @@ export class TaskDashboardComponent implements OnInit {
             updatedAt: typeof task.updatedAt === 'string' ? task.updatedAt : task.updatedAt.toString(),
             dueDate: task.dueDate ? (typeof task.dueDate === 'string' ? task.dueDate : task.dueDate.toString()) : undefined
           })) as Task[];
+          this.applyFiltersAndSort();
         } else {
           this.errorMessage = response.message || 'Failed to load tasks';
           this.tasks = [];
+          this.filteredTasks = [];
         }
       },
       error: (error) => {
@@ -186,6 +195,86 @@ export class TaskDashboardComponent implements OnInit {
       default:
         return category;
     }
+  }
+
+  // Filtering and sorting methods
+  applyFiltersAndSort(): void {
+    let filtered = [...this.tasks];
+
+    // Apply category filter
+    if (this.categoryFilter !== 'all') {
+      filtered = filtered.filter(task => task.category === this.categoryFilter);
+    }
+
+    // Apply status filter
+    if (this.statusFilter !== 'all') {
+      filtered = filtered.filter(task => task.status === this.statusFilter);
+    }
+
+    // Apply priority filter
+    if (this.priorityFilter !== 'all') {
+      filtered = filtered.filter(task => task.priority === this.priorityFilter);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (this.sortBy) {
+        case 'createdAt':
+          // Newest first
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+        case 'dueDate':
+          // Earliest due date first, tasks without due date go to the end
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;  // a goes after b
+          if (!b.dueDate) return -1; // b goes after a
+          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+
+        case 'priority':
+          // High -> Medium -> Low
+          const priorityValue = (priority: string) => {
+            if (priority === 'high') return 0;
+            if (priority === 'medium') return 1;
+            return 2; // low
+          };
+          return priorityValue(a.priority) - priorityValue(b.priority);
+
+        case 'status':
+          // Pending -> In Progress -> Completed
+          const statusValue = (status: string) => {
+            if (status === 'pending') return 0;
+            if (status === 'in-progress') return 1;
+            return 2; // completed
+          };
+          return statusValue(a.status) - statusValue(b.status);
+
+        case 'title':
+          // Alphabetical A-Z
+          return a.title.localeCompare(b.title);
+
+        default:
+          return 0;
+      }
+    });
+
+    this.filteredTasks = filtered;
+  }
+
+  // Methods called from template
+  onFilterChange(): void {
+    this.applyFiltersAndSort();
+  }
+
+  onSortChange(): void {
+    this.applyFiltersAndSort();
+  }
+
+  clearFilters(): void {
+    this.categoryFilter = 'all';
+    this.statusFilter = 'all';
+    this.priorityFilter = 'all';
+    this.sortBy = 'createdAt';
+    this.applyFiltersAndSort();
   }
 
   formatDate(dateString: string): string {
