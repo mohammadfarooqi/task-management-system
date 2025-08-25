@@ -2,10 +2,19 @@
 @baseUrl = http://localhost:3000/api
 @contentType = application/json
 
-# Update these tokens after logging in as different users
-@ownerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoib3duZXJAdGVjaGNvcnAuY29tIiwib3JnYW5pemF0aW9uSWQiOjEsInJvbGVzIjpbIk93bmVyIl0sImlhdCI6MTc1NTgxNjAwMywiZXhwIjoxNzU1OTAyNDAzfQ.oYrKl9xY1Grgpe7LxVrCwtUpu0bnefXmsvLqwOqXiVc
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AdGVjaGNvcnAuY29tIiwib3JnYW5pemF0aW9uSWQiOjEsInJvbGVzIjpbIkFkbWluIl0sImlhdCI6MTc1NTc4MjA2NSwiZXhwIjoxNzU1ODY4NDY1fQ.qpf6wC1TZ7OHO23_Wy9MtNqhTHeHU8MwOYOdV5Bm1k8
-@viewerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidmlld2VyQHRlY2hjb3JwLmNvbSIsIm9yZ2FuaXphdGlvbklkIjoxLCJyb2xlcyI6WyJWaWV3ZXIiXSwiaWF0IjoxNzU1NzgyMDg5LCJleHAiOjE3NTU4Njg0ODl9.OOYLAUjDhmfvyCT0Jd6VMHrjFz-8k9t2YTGHhiXDH5Q
+### ⚠️ AUTHENTICATION UPDATE ⚠️
+### See docs/api/README.md for details on the new HttpOnly cookie authentication
+### 
+### Quick summary:
+### - Login sets an HttpOnly cookie (no token in response body)
+### - Cookie is automatically sent with requests (if client supports it)
+### - Bearer tokens still work as fallback for compatibility
+###
+### For Bearer token usage (testing tools without cookie support):
+### Uncomment and update these after logging in:
+# @ownerToken = YOUR_OWNER_TOKEN
+# @adminToken = YOUR_ADMIN_TOKEN  
+# @viewerToken = YOUR_VIEWER_TOKEN
 
 ### ========== LOGIN TESTS ==========
 

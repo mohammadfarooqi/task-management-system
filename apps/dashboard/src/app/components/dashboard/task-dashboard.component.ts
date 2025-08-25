@@ -321,7 +321,6 @@ export class TaskDashboardComponent implements OnInit {
   // Auth actions
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   // Navigation methods

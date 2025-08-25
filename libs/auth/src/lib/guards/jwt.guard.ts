@@ -23,7 +23,7 @@ export class JwtGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractToken(request);
 
     if (!token) {
       throw new UnauthorizedException('No token provided');
@@ -43,7 +43,14 @@ export class JwtGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractToken(request: Request): string | undefined {
+    // First try to extract from cookie
+    const cookieToken = request.cookies?.accessToken;
+    if (cookieToken) {
+      return cookieToken;
+    }
+
+    // Fallback to Authorization header for backward compatibility
     const authHeader = request.headers.authorization;
     if (!authHeader) return undefined;
     

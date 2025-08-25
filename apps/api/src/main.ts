@@ -9,6 +9,7 @@ import { Logger, ValidationPipe, ClassSerializerInterceptor } from '@nestjs/comm
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { GlobalExceptionFilter } from './app/filters/global-exception.filter';
+const cookieParser = require('cookie-parser');
 
 console.log('Imports loaded, starting bootstrap...');
 
@@ -18,6 +19,9 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
     console.log('NestJS app created successfully');
+
+    // Enable cookie parser middleware
+    app.use(cookieParser());
 
     // Enable CORS for frontend development
     app.enableCors({

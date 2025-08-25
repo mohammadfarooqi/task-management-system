@@ -169,7 +169,6 @@ export class AuditLogComponent implements OnInit {
   // Logout
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   // Mobile menu toggle

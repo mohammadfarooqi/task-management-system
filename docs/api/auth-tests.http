@@ -2,6 +2,12 @@
 @baseUrl = http://localhost:3000/api
 @contentType = application/json
 
+### IMPORTANT: Authentication has been updated to use HttpOnly cookies
+### When using a REST client that supports cookies (like VS Code REST Client):
+### 1. Login first - this will set the accessToken cookie
+### 2. Subsequent requests will automatically include the cookie
+### If your client doesn't support cookies, the API still accepts Bearer tokens as fallback
+
 ### Login as SYSTEM ADMIN (platform administrator)
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
@@ -39,8 +45,8 @@ Content-Type: {{contentType}}
 }
 
 ### Test protected route with any user
+### Note: After login, the cookie will be automatically sent
 GET {{baseUrl}}/auth/profile
-Authorization: Bearer YOUR_TOKEN_HERE
 
 ### Login with wrong password (should fail)
 POST {{baseUrl}}/auth/login
@@ -59,3 +65,6 @@ Content-Type: {{contentType}}
   "email": "nonexistent@example.com",
   "password": "password123"
 }
+
+### Logout (clears the HttpOnly cookie)
+POST {{baseUrl}}/auth/logout

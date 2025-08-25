@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { LoginDto, LoginResponseDto, ApiResponse, JwtPayload } from '@task-management-system/data';
 import { environment } from '../../environments/environment';
-import { jwtDecode } from 'jwt-decode';
 
 export interface User {
   id: number;
@@ -24,103 +24,92 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // Check if user is already logged in on service initialization
-    this.loadUserFromStorage();
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    // Check if user is already logged in by calling profile endpoint
+    this.loadCurrentUser();
   }
 
   login(credentials: LoginDto): Observable<ApiResponse<LoginResponseDto>> {
-    return this.http.post<ApiResponse<LoginResponseDto>>(`${this.apiUrl}/auth/login`, credentials)
-      .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            // Store only the token
-            window.localStorage.setItem('accessToken', response.data.accessToken);
-
-            // Update current user subject with decoded token data
-            this.currentUserSubject.next({
-              ...response.data.user,
-              role: response.data.role
-            });
-          }
-        })
-      );
+    return this.http.post<ApiResponse<LoginResponseDto>>(
+      `${this.apiUrl}/auth/login`, 
+      credentials,
+      { withCredentials: true } // Important for cookies
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          // Token is now in HttpOnly cookie, not in response
+          // Update current user subject with user data from response
+          this.currentUserSubject.next({
+            ...response.data.user,
+            role: response.data.role
+          });
+        }
+      })
+    );
   }
 
   logout(): void {
-    // Clear only the token from localStorage
-    window.localStorage.removeItem('accessToken');
-
-    // Clear current user
-    this.currentUserSubject.next(null);
-  }
-
-  getToken(): string | null {
-    return window.localStorage.getItem('accessToken');
-  }
-
-  getCurrentUser(): User | null {
-    // If we have a cached user, return it
-    if (this.currentUserSubject.value) {
-      return this.currentUserSubject.value;
-    }
-
-    // Otherwise, try to decode the token
-    const token = this.getToken();
-    if (token) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        const user: User = {
-          id: decoded.sub,
-          email: decoded.email,
-          firstName: decoded.firstName,
-          lastName: decoded.lastName,
-          organizationId: decoded.organizationId,
-          role: decoded.role,
-          isActive: true // User must be active to have valid JWT
-        };
-        this.currentUserSubject.next(user);
-        return user;
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
+    // Call logout endpoint to clear HttpOnly cookie
+    this.http.post<ApiResponse<void>>(
+      `${this.apiUrl}/auth/logout`,
+      {},
+      { withCredentials: true }
+    ).subscribe({
+      next: () => {
+        // Clear current user
+        this.currentUserSubject.next(null);
+        // Navigate to login page
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        // Even if logout fails, clear user and navigate to login
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
       }
-    }
+    });
+  }
+
+  // Token is now in HttpOnly cookie, not accessible from JavaScript
+  // This method is kept for backward compatibility but always returns null
+  getToken(): string | null {
     return null;
   }
 
-  isLoggedIn(): boolean {
-    return !!this.getToken();
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
   }
 
-  private loadUserFromStorage(): void {
-    const token = this.getToken();
+  isLoggedIn(): boolean {
+    return !!this.currentUserSubject.value;
+  }
 
-    if (token) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        
-        // Check if token is expired
-        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-          this.logout();
-          return;
+  private loadCurrentUser(): void {
+    // Try to get user profile from backend (will work if cookie is valid)
+    this.http.get<ApiResponse<JwtPayload>>(
+      `${this.apiUrl}/auth/profile`,
+      { withCredentials: true }
+    ).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const user: User = {
+            id: response.data.sub,
+            email: response.data.email,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            organizationId: response.data.organizationId,
+            role: response.data.role,
+            isActive: true
+          };
+          this.currentUserSubject.next(user);
         }
-
-        // Set user from JWT payload
-        const user: User = {
-          id: decoded.sub,
-          email: decoded.email,
-          firstName: decoded.firstName,
-          lastName: decoded.lastName,
-          organizationId: decoded.organizationId,
-          role: decoded.role,
-          isActive: true // User must be active to have valid JWT
-        };
-        this.currentUserSubject.next(user);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        this.logout();
+      },
+      error: () => {
+        // User is not logged in or session expired
+        this.currentUserSubject.next(null);
       }
-    }
+    });
   }
 }

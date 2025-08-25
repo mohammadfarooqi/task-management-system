@@ -13,14 +13,16 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    const token = this.authService.getToken();
+    // Check if user is logged in by checking if current user exists
+    // Token is now in HttpOnly cookie and not accessible from JavaScript
+    const currentUser = this.authService.getCurrentUser();
     
-    if (token) {
-      // Token exists, user is authenticated
+    if (currentUser) {
+      // User exists, they are authenticated
       return true;
     }
     
-    // No token, redirect to login
+    // No user, redirect to login
     return this.router.createUrlTree(['/login']);
   }
 }

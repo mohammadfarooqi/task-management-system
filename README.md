@@ -494,19 +494,17 @@ Response:
   "success": true,
   "data": {
     "user": { ... },
-    "accessToken": "jwt-token-here",
     "role": "Admin"  // Single role string, not array
   },
   "message": "Login successful"
 }
 ```
+**Note**: The JWT token is now set as an HttpOnly cookie rather than returned in the response body.
 
 ### Organization Management Endpoints (SystemAdmin only)
 
-All organization management endpoints require JWT authentication and SystemAdmin role:
-```http
-Authorization: Bearer <jwt-token>
-```
+All organization management endpoints require JWT authentication and SystemAdmin role.
+**Note**: Authentication is now handled via HttpOnly cookies, so no Authorization header is needed when using a browser or with `withCredentials: true`.
 
 #### Create Organization
 ```http
@@ -564,10 +562,7 @@ Response:
 
 ### User Management Endpoints
 
-All user management endpoints require JWT authentication:
-```http
-Authorization: Bearer <jwt-token>
-```
+All user management endpoints require JWT authentication via HttpOnly cookies.
 
 #### Create User (Owner/Admin only)
 ```http
@@ -607,10 +602,7 @@ Response:
 
 ### Task Management Endpoints
 
-All task endpoints require JWT authentication:
-```http
-Authorization: Bearer <jwt-token>
-```
+All task endpoints require JWT authentication via HttpOnly cookies.
 
 #### Create Task (Admin/Owner only)
 ```http
@@ -835,16 +827,21 @@ The frontend includes a comprehensive audit log dashboard accessible to SystemAd
 - **JWT Tokens**: Configurable expiration (default: 24 hours)
   - Payload includes: `sub` (userId), `email`, `firstName`, `lastName`, `organizationId`, `role`
   - Automatic `iat` and `exp` claims for token validation
+  - **HttpOnly Cookies**: JWT tokens stored in secure HttpOnly cookies to prevent XSS attacks
+  - Cookie configuration: `httpOnly: true`, `secure: true` (production), `sameSite: 'strict'`
 - **Global Auth Guard**: All API routes protected by default with JWT validation
+  - Guard now extracts tokens from cookies first, then Authorization header as fallback
 - **Role-Based Guards**: Fine-grained access control with single role per user
 - **Audit Logging**: Track all sensitive operations
 
 ### Frontend Security
 - **Route Guards**: All dashboard routes protected with authentication checks
-- **AuthGuard**: Ensures users are logged in before accessing protected pages
+- **AuthGuard**: Ensures users are logged in before accessing protected pages (checks user session, not token)
 - **RoleGuard**: Restricts access to specific routes based on user roles
 - **Automatic Redirects**: Unauthenticated users redirected to login
 - **Token Validation**: Backend validates JWT expiration on every request
+- **HTTP Interceptor**: Centralized error handling for 401 responses with automatic logout
+- **No Token Storage**: JWT tokens no longer stored in localStorage (handled via HttpOnly cookies)
 
 ## 📁 Project Structure
 
@@ -951,11 +948,13 @@ Note: All users must be created via authenticated endpoints:
 - Unauthorized access results in redirect to login or dashboard
 
 #### Authentication Security
-- **Token Storage**: JWT stored in localStorage (temporary solution, HttpOnly cookies recommended for production)
-- **User Data**: User information extracted from JWT payload, not stored separately
-- **HTTP Interceptor**: Automatically attaches Authorization headers to protected routes
-- **401 Handling**: Interceptor redirects to login on token expiration
-- **Public Routes**: Login endpoint excluded from auth header injection
+- **Token Storage**: JWT stored in secure HttpOnly cookies (prevents XSS attacks)
+- **User Data**: User information cached in memory after login, retrieved from /profile endpoint on refresh
+- **HTTP Interceptor**: Automatically includes `withCredentials: true` for cookie authentication
+- **401 Handling**: Interceptor handles unauthorized responses with automatic logout and redirect
+- **Public Routes**: Login/logout endpoints excluded from auth requirements
+- **CORS Configuration**: Backend configured to accept credentials from frontend origin
+- **Cookie Security**: Cookies set with `httpOnly`, `secure` (production), and `sameSite: 'strict'`
 
 ### Frontend Development Notes
 
