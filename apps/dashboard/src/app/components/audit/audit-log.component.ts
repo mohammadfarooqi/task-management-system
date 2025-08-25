@@ -26,6 +26,9 @@ export class AuditLogComponent implements OnInit {
   currentPage = 1;
   pageSize = 50;
 
+  // Mobile menu state
+  mobileMenuOpen = false;
+
   constructor(
     private authService: AuthService,
     private auditService: AuditService,
@@ -170,5 +173,10 @@ export class AuditLogComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Mobile menu toggle
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 }

@@ -33,6 +33,9 @@ export class TaskDashboardComponent implements OnInit {
   priorityFilter = 'all';
   sortBy = 'createdAt';
 
+  // Mobile menu state
+  mobileMenuOpen = false;
+
   constructor(
     private authService: AuthService,
     private taskService: TaskService,
@@ -334,5 +337,10 @@ export class TaskDashboardComponent implements OnInit {
     if (!this.currentUser) return false;
     // Only SystemAdmin, Owner, and Admin can view audit logs
     return ['SystemAdmin', 'Owner', 'Admin'].includes(this.currentUser.role);
+  }
+
+  // Mobile menu toggle
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 }

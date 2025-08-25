@@ -6,7 +6,7 @@ A comprehensive task management system built with NX monorepo architecture, feat
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
+git clone https://github.com/mohammadfarooqi/task-management-system.git
 cd task-management-system
 
 # 2. Install dependencies
@@ -234,7 +234,7 @@ Result:
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/mohammadfarooqi/task-management-system.git
 cd task-management-system
 ```
 
@@ -951,7 +951,7 @@ Note: All users must be created via authenticated endpoints:
 
 #### Tailwind CSS Configuration
 - **Config File**: `tailwind.config.js` in project root
-- **PostCSS Config**: `postcss.config.js` in project root  
+- **PostCSS Config**: `postcss.config.js` in project root
 - **Global Styles**: `apps/dashboard/src/styles.scss`
 - **Utility Classes**: Automatically generated based on template usage
 - **Version**: Tailwind CSS v3 (compatible with Angular 17)
