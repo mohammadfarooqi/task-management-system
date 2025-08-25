@@ -2,6 +2,31 @@
 
 A comprehensive task management system built with NX monorepo architecture, featuring role-based access control (RBAC), organizational hierarchy, and audit logging.
 
+## 🚀 Quick Start
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd task-management-system
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up environment variables
+cp .env.example .env
+
+# 4. Start the application (both API and Dashboard)
+npm start
+
+# 5. Open in browser
+# Dashboard: http://localhost:4200
+# API: http://localhost:3000/api
+
+# 6. Login with default credentials
+# Email: admin@system.com
+# Password: password123
+```
+
 ## 🏗️ Architecture Overview
 
 This project uses an NX monorepo structure with:
@@ -249,35 +274,41 @@ BCRYPT_ROUNDS=12
 
 ## 🏃‍♂️ Running the Application
 
-### Quick Start
+### Quick Start (Recommended)
 ```bash
-# Start both API and Dashboard together (recommended)
+# Start both API and Dashboard together
 npm start
 # or
 npm run dev
+
+# This will run:
+# - API server at http://localhost:3000/api
+# - Dashboard at http://localhost:4200
 ```
 
-### Development Mode
+### Individual Services
 
-#### Backend (API)
+#### Backend (API Only)
 ```bash
 # Run the API server
 npm run start:api
 # or
 npm run dev:api
+
+# API available at: http://localhost:3000/api
 ```
 
-The API will be available at `http://localhost:3000/api`
-
-#### Frontend (Dashboard)
+#### Frontend (Dashboard Only)
 ```bash
 # Run the Angular dashboard
 npm run start:dashboard
 # or
 npm run dev:dashboard
+
+# Dashboard available at: http://localhost:4200
 ```
 
-The dashboard will be available at `http://localhost:4200`
+**Note**: If running services individually, start the API first as the Dashboard depends on it for authentication and data.
 
 ### Production Build
 
