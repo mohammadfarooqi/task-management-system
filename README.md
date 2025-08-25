@@ -834,11 +834,19 @@ The frontend includes a comprehensive audit log dashboard accessible to SystemAd
 
 ## 🔐 Security Features
 
+### Backend Security
 - **Password Hashing**: bcrypt with configurable rounds (default: 12)
-- **JWT Tokens**: Configurable expiration (default: 24 hours)
-- **Global Auth Guard**: All routes protected by default
+- **JWT Tokens**: Configurable expiration (default: 24 hours) with `iat` and `exp` claims
+- **Global Auth Guard**: All API routes protected by default with JWT validation
 - **Role-Based Guards**: Fine-grained access control with single role per user
 - **Audit Logging**: Track all sensitive operations
+
+### Frontend Security
+- **Route Guards**: All dashboard routes protected with authentication checks
+- **AuthGuard**: Ensures users are logged in before accessing protected pages
+- **RoleGuard**: Restricts access to specific routes based on user roles
+- **Automatic Redirects**: Unauthenticated users redirected to login
+- **Token Validation**: Backend validates JWT expiration on every request
 
 ## 📁 Project Structure
 
@@ -860,6 +868,7 @@ task-management-system/
 │       │   │   ├── components/
 │       │   │   │   └── auth/
 │       │   │   │       └── login/  # Login component
+│       │   │   ├── guards/        # Frontend route guards
 │       │   │   ├── services/
 │       │   │   ├── app.component.html
 │       │   │   ├── app.component.ts
@@ -928,6 +937,20 @@ Note: All users must be created via authenticated endpoints:
    - Frontend Components: `apps/dashboard/src/app/components/`
    - DTOs: `libs/data/src/lib/dto/`
    - Guards: `libs/auth/src/lib/guards/`
+
+### Frontend Routes and Guards
+
+#### Protected Routes
+- `/login` - Public route (redirects to dashboard if already authenticated)
+- `/dashboard` - Protected by `AuthGuard` (requires authentication)
+- `/audit-logs` - Protected by `RoleGuard` (requires SystemAdmin, Owner, or Admin role)
+- All other paths redirect to login
+
+#### Guard Implementation
+- **AuthGuard**: Checks for valid JWT token in localStorage
+- **RoleGuard**: Validates both authentication and role-based permissions
+- Guards use Angular's `UrlTree` for automatic redirects
+- Unauthorized access results in redirect to login or dashboard
 
 ### Frontend Development Notes
 
