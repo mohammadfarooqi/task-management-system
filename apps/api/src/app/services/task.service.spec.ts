@@ -173,18 +173,19 @@ describe('TaskService', () => {
       expect(result).toEqual(tasks);
     });
 
-    it('should return only assigned/created tasks for Viewer', async () => {
+    it('should return all organization tasks for Viewer', async () => {
       const userId = 3;
       const organizationId = 1;
       const userRole = 'Viewer';
-      const tasks = [{ ...mockTask, createdBy: userId }];
+      const tasks = [{ ...mockTask, createdBy: 1 }, { ...mockTask, createdBy: 2 }]; // Tasks from different users
 
       mockOrganizationService.getOrganizationHierarchyIds.mockResolvedValue([1]);
       mockQueryBuilder.getMany.mockResolvedValue(tasks);
 
       const result = await service.findAll(userId, organizationId, userRole);
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+      // Viewer should now see all tasks, so andWhere should NOT be called with userId filter
+      expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith(
         'task.createdBy = :userId',
         { userId }
       );
