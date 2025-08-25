@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   credentials = {
     email: 'admin@system.com',
     password: 'password123'
@@ -20,6 +20,13 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    // If user is already authenticated, redirect to dashboard
+    if (this.authService.getToken()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   onSubmit() {
     this.isLoading = true;

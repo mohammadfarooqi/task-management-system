@@ -15,7 +15,8 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     const authServiceMock = {
-      login: jest.fn()
+      login: jest.fn(),
+      getToken: jest.fn().mockReturnValue(null) // Default to no token
     };
     const routerMock = {
       navigate: jest.fn()
@@ -50,6 +51,30 @@ describe('LoginComponent', () => {
     expect(component.credentials.password).toBe('password123');
     expect(component.errorMessage).toBe('');
     expect(component.isLoading).toBe(false);
+  });
+
+  it('should redirect to dashboard if user is already authenticated', () => {
+    // Arrange
+    authService.getToken.mockReturnValue('existing-token');
+    router.navigate.mockClear();
+
+    // Act
+    component.ngOnInit();
+
+    // Assert
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('should not redirect if user is not authenticated', () => {
+    // Arrange
+    authService.getToken.mockReturnValue(null);
+    router.navigate.mockClear();
+
+    // Act
+    component.ngOnInit();
+
+    // Assert
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   describe('login form submission', () => {
