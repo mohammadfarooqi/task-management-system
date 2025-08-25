@@ -20,12 +20,14 @@ This project uses an NX monorepo structure with:
 - **Component Architecture**: Modular and reusable components
 - **Task Filtering**: Client-side filtering by category (Work/Personal/Other), status, and priority
 - **Task Sorting**: Client-side sorting by creation date, due date, priority, status, or title
+  - Note: Filtering and sorting currently implemented client-side for better UX responsiveness
 - **Role-based UI**: Different permissions for Owner/Admin vs Viewer roles
 - **NX Monorepo**: Shared libraries and efficient build system
 
 ### Backend Features
 - **JWT Authentication**: Secure token-based authentication
 - **Role-Based Access Control (RBAC)**: Four-tier role system (SystemAdmin > Owner > Admin > Viewer)
+  - Note: PDF specifies 3 roles (Owner, Admin, Viewer). SystemAdmin added for platform management
 - **Organization Hierarchy**: 2-level parent-child organization structure
 - **Task Management**: Full CRUD operations with role-based permissions
 - **Audit Logging**: Comprehensive tracking of all system actions
@@ -890,7 +892,7 @@ Note: All users must be created via authenticated endpoints:
 - Owners/Admins create users in their org via `/users` endpoint
 
 2. **Testing API**: Use the HTTP test files in `docs/api/`:
-   - `auth-test.http`: Authentication testing
+   - `auth-tests.http`: Authentication testing
    - `task-test.http`: Task management testing
    - `org-hierarchy-test.http`: Organization hierarchy testing
    - `user-test.http`: User creation and permissions testing
@@ -931,16 +933,26 @@ Note: All users must be created via authenticated endpoints:
   - [x] Sort by Date, Priority, Status, Title
 - [x] Role-based UI Components
 - [x] Responsive Mobile Design
+
+## ⚠️ Required Features - Not Yet Implemented
+
+### Per PDF Specification Requirements
+- [ ] **Drag-and-drop for task reordering and status changes** (REQUIRED)
+  - Specified in PDF: "Drag-and-drop for reordering/status changes"
+  - Would enable users to visually manage task workflow
+  - Implementation would use Angular CDK drag-drop module
+
+### Future Enhancements (Optional)
 - [ ] Organization Management Dashboard
-- [ ] Drag-and-drop for task reordering and status changes (Required per spec)
 - [ ] Dark Mode Support
 
 ### API Improvements
 - [ ] Pagination for all list endpoints
-- [ ] Server-side filtering and sorting
+- [ ] Server-side filtering and sorting (Optional - not required)
   - Currently all filtering/sorting is done client-side in Angular
-  - Add query parameters: `?status=pending&priority=high&category=work&sortBy=createdAt`
-  - Would improve performance for large datasets
+  - Client-side approach provides instant feedback and better UX for current dataset sizes
+  - Server-side would be beneficial for very large datasets (1000+ tasks)
+  - Would add query parameters: `?status=pending&priority=high&category=work&sortBy=createdAt`
 - [ ] Request/Response interceptors
 - [ ] API versioning
 
