@@ -21,7 +21,10 @@ export class TaskDashboardComponent implements OnInit {
   tasks: Task[] = [];
   isLoading = true;
   errorMessage = '';
-  showCreateForm = false;
+
+  // Task form state
+  showTaskForm = false;
+  selectedTask: Task | null = null;
 
   constructor(
     private authService: AuthService,
@@ -81,6 +84,28 @@ export class TaskDashboardComponent implements OnInit {
     });
   }
 
+  // Task form actions
+  openCreateForm(): void {
+    this.selectedTask = null;
+    this.showTaskForm = true;
+  }
+
+  openEditForm(task: Task): void {
+    this.selectedTask = task;
+    this.showTaskForm = true;
+  }
+
+  onTaskSaved(): void {
+    this.showTaskForm = false;
+    this.selectedTask = null;
+    this.loadTasks(); // Reload tasks to show the new/updated task
+  }
+
+  onFormClosed(): void {
+    this.showTaskForm = false;
+    this.selectedTask = null;
+  }
+
   // Role-based permissions
   get canCreateTasks(): boolean {
     if (!this.currentUser) return false;
@@ -121,16 +146,66 @@ export class TaskDashboardComponent implements OnInit {
     }
   }
 
+  // Format display text for status
+  getStatusDisplay(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'Completed';
+      case 'in-progress':
+        return 'In Progress';
+      case 'pending':
+        return 'Pending';
+      default:
+        return status;
+    }
+  }
+
+  // Format display text for priority
+  getPriorityDisplay(priority: string): string {
+    switch (priority) {
+      case 'high':
+        return 'High';
+      case 'medium':
+        return 'Medium';
+      case 'low':
+        return 'Low';
+      default:
+        return priority;
+    }
+  }
+
+  // Format display text for category
+  getCategoryDisplay(category: string): string {
+    switch (category) {
+      case 'work':
+        return 'Work';
+      case 'personal':
+        return 'Personal';
+      case 'other':
+        return 'Other';
+      default:
+        return category;
+    }
+  }
+
   formatDate(dateString: string): string {
+    // Parse the date string and format without timezone conversion
+    // If it's just a date (YYYY-MM-DD), display as is
+    // If it's a datetime, extract just the date part
+    const date = dateString.split('T')[0];
+    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = date.split('-');
+      return `${month}/${day}/${year}`;
+    }
     return new Date(dateString).toLocaleDateString();
   }
 
   // Task actions
-  editTask(task: Task): void {
-    console.log('Edit task:', task);
-    // TODO: Implement edit functionality
-    alert(`Edit task: ${task.title}`);
-  }
+  // editTask(task: Task): void {
+  //   console.log('Edit task:', task);
+  //   // TODO: Implement edit functionality
+  //   alert(`Edit task: ${task.title}`);
+  // }
 
   deleteTaskConfirm(task: Task): void {
     if (confirm(`Are you sure you want to delete "${task.title}"?`)) {

@@ -28,6 +28,20 @@ This project uses an NX monorepo structure with:
 - **Audit Logging**: Comprehensive tracking of all system actions
 - **TypeORM with SQLite**: Lightweight database with automatic migrations
 
+### Task Data Model
+
+#### Task Fields and Validation
+
+| Field | Type | Required | Allowed Values | Description |
+|-------|------|----------|----------------|-------------|
+| title | string | Yes | 1-200 chars | Task title |
+| description | string | No | max 2000 chars | Task description |
+| status | enum | No | `pending`, `in-progress`, `completed` | Current task status (default: `pending`) |
+| priority | enum | No | `low`, `medium`, `high` | Task priority level (default: `medium`) |
+| category | enum | No | `work`, `personal`, `other` | Task category (default: `work`) |
+| dueDate | date | No | Valid date | Task due date |
+| assignedTo | number | No | Valid user ID | User assigned to the task |
+
 ### Role-Based Access Control (RBAC)
 
 #### Role Hierarchy
@@ -602,7 +616,7 @@ Content-Type: application/json
   "title": "Task title",
   "description": "Task description",
   "priority": "high",
-  "category": "development",
+  "category": "work",
   "assignedTo": 2
 }
 ```
@@ -617,7 +631,7 @@ Response:
     "description": "Task description",
     "status": "pending",
     "priority": "high",
-    "category": "development",
+    "category": "work",
     "createdBy": 1,
     "assignedTo": 2,
     "organizationId": 1
@@ -662,7 +676,7 @@ Response:
     "description": "Task description",
     "status": "pending",
     "priority": "high",
-    "category": "development",
+    "category": "work",
     "createdBy": 1,
     "assignedTo": 2,
     "organizationId": 1
@@ -680,7 +694,7 @@ Content-Type: application/json
   "description": "Updated description",
   "status": "in-progress",
   "priority": "medium",
-  "category": "development"
+  "category": "work"
 }
 ```
 

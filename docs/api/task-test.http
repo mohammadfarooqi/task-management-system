@@ -59,7 +59,7 @@ Authorization: Bearer {{adminToken}}
   "title": "Fix critical bug",
   "description": "Login system is broken",
   "priority": "high",
-  "category": "development"
+  "category": "work"
 }
 
 ### 6. OWNER: Create a task (should work)
@@ -71,7 +71,7 @@ Authorization: Bearer {{ownerToken}}
   "title": "Strategic planning",
   "description": "Plan Q4 roadmap",
   "priority": "medium",
-  "category": "planning",
+  "category": "other",
   "assignedTo": 2
 }
 
@@ -93,7 +93,7 @@ Authorization: Bearer {{adminToken}}
   "description": "Working on this now",
   "status": "in-progress",
   "priority": "high",
-  "category": "development"
+  "category": "work"
 }
 
 ### 10. OWNER: Delete a task (should work)
@@ -130,7 +130,7 @@ Authorization: Bearer {{viewerToken}}
   "description": "Viewers cannot replace tasks",
   "status": "completed",
   "priority": "low",
-  "category": "general"
+  "category": "personal"
 }
 
 ### 15. VIEWER: Try to delete task (should fail - 403)
@@ -164,7 +164,7 @@ Authorization: Bearer {{adminToken}}
   "description": "This should fail",
   "status": "completed",
   "priority": "low",
-  "category": "general"
+  "category": "personal"
 }
 
 ### ========== AUDIT LOG TESTS ==========

@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Organization } from './organization.entity';
 import { UserRole } from './user-role.entity';
 
@@ -11,6 +12,7 @@ export class User {
   email!: string;
 
   @Column({ name: 'password_hash' })
+  @Exclude()
   passwordHash!: string; // This is in the entity but NOT in the interface
 
   @Column({ name: 'first_name' })

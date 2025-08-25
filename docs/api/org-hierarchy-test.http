@@ -59,7 +59,7 @@ Authorization: Bearer {{parentOrgAdminToken}}
   "title": "Complete sprint tasks",
   "description": "Finish all tasks for current sprint",
   "priority": "high",
-  "category": "development",
+  "category": "work",
   "assignedTo": 3
 }
 
@@ -72,7 +72,7 @@ Authorization: Bearer {{parentOrgOwnerToken}}
   "title": "Review quarterly budget",
   "description": "Review and approve Q4 budget",
   "priority": "high",
-  "category": "planning"
+  "category": "other"
 }
 
 ### ========== TEST: Organization Hierarchy Task Visibility ==========
@@ -109,7 +109,7 @@ Authorization: Bearer {{parentOrgAdminToken}}
   "description": "Updated: Finish all tasks for current sprint",
   "status": "in-progress",
   "priority": "high",
-  "category": "development"
+  "category": "work"
 }
 
 ### 13. Child Org User: Try to update parent org task (should fail)
@@ -122,7 +122,7 @@ Authorization: Bearer {{childOrgUserToken}}
   "description": "Child org cannot update parent org tasks",
   "status": "completed",
   "priority": "low",
-  "category": "general"
+  "category": "personal"
 }
 
 ### 14. Parent Org Admin: Delete child org task (should work)

@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { OrganizationService } from './organization.service';
-import { Task, TaskStatus, TaskPriority } from '../entities/task.entity';
+import { Task } from '../entities/task.entity';
+import { TaskStatus, TaskPriority, TaskCategory } from '@task-management-system/data';
 
 describe('TaskService', () => {
   let service: TaskService;
@@ -17,7 +18,7 @@ describe('TaskService', () => {
     description: 'Test Description',
     status: TaskStatus.PENDING,
     priority: TaskPriority.MEDIUM,
-    category: 'development',
+    category: TaskCategory.WORK,
     dueDate: null,
     createdBy: 1,
     assignedTo: 2,
@@ -77,7 +78,7 @@ describe('TaskService', () => {
         title: 'New Task',
         description: 'New Description',
         priority: 'high',
-        category: 'development',
+        category: TaskCategory.WORK,
       };
 
       const userId = 1;
@@ -113,7 +114,7 @@ describe('TaskService', () => {
         title: 'New Task',
         description: 'New Description',
         priority: 'high',
-        category: 'development',
+        category: TaskCategory.WORK,
       };
 
       const userId = 1;
@@ -254,7 +255,7 @@ describe('TaskService', () => {
         description: 'Updated Description',
         status: 'in-progress',
         priority: 'high',
-        category: 'development',
+        category: TaskCategory.WORK,
       };
 
       const taskByOtherUser = { ...mockTask, createdBy: 999 }; // Different creator
@@ -286,7 +287,7 @@ describe('TaskService', () => {
         description: 'Updated Description',
         status: 'completed',
         priority: 'low',
-        category: 'general',
+        category: 'work',
       };
 
       const childOrgTask = { ...mockTask, organizationId: childOrgId, createdBy: 3 };
@@ -305,7 +306,7 @@ describe('TaskService', () => {
         description: 'Updated Description',
         status: 'in-progress',
         priority: 'high',
-        category: 'development',
+        category: TaskCategory.WORK,
       };
 
       mockTaskRepository.findOne.mockResolvedValue(mockTask);

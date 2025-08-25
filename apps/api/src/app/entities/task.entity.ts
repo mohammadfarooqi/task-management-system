@@ -1,18 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
-
-export enum TaskStatus {
-  PENDING = 'pending',
-  IN_PROGRESS = 'in-progress',
-  COMPLETED = 'completed'
-}
-
-export enum TaskPriority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high'
-}
+import { TaskStatus, TaskPriority, TaskCategory } from '@task-management-system/data';
 
 @Entity('tasks')
 export class Task {
@@ -31,8 +20,8 @@ export class Task {
   @Column({ type: 'varchar', length: 20, default: TaskPriority.MEDIUM })
   priority!: TaskPriority;
 
-  @Column({ length: 50, default: 'general' })
-  category!: string;
+  @Column({ type: 'varchar', length: 20, default: TaskCategory.WORK })
+  category!: TaskCategory;
 
   @Column({ name: 'due_date', type: 'datetime', nullable: true })
   dueDate?: Date;

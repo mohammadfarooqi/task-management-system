@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task, TaskStatus, TaskPriority } from '../entities/task.entity';
+import { Task } from '../entities/task.entity';
+import { TaskStatus, TaskPriority } from '@task-management-system/data';
 import { CreateTaskDto, ReplaceTaskDto, hasRolePermission, canViewAllOrgTasks, canEditSpecificTask, RoleType } from '@task-management-system/data';
 import { OrganizationService } from './organization.service';
 

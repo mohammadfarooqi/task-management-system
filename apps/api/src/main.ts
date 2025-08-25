@@ -5,8 +5,8 @@ console.log('📍 main.ts file is being loaded...');
  * This is only a minimal backend to get started.
  */
 
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { Logger, ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { GlobalExceptionFilter } from './app/filters/global-exception.filter';
 
@@ -36,6 +36,9 @@ async function bootstrap() {
 
     // Enable global exception filter for consistent error responses
     app.useGlobalFilters(new GlobalExceptionFilter());
+
+    // Enable class serializer interceptor to handle @Exclude() decorators
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     const globalPrefix = process.env.API_PREFIX || 'api';
     app.setGlobalPrefix(globalPrefix);
