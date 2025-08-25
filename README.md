@@ -330,8 +330,8 @@ npm run test:affected
 # Generate component (specify full path)
 npx nx g @nx/angular:component apps/dashboard/src/app/components/[name] --standalone=false
 
-# Generate service (specify full path)
-npx nx g @nx/angular:service apps/dashboard/src/app/services/[name]
+# Generate service (requires name and project)
+npx nx g @nx/angular:service [name] --project=dashboard --path=apps/dashboard/src/app/services
 
 # Generate guard (specify full path)
 npx nx g @nx/angular:guard apps/dashboard/src/app/guards/[name]
@@ -350,7 +350,7 @@ npx nx g @nx/angular:module apps/dashboard/src/app/modules/[name]
 npx nx g @nx/angular:component apps/dashboard/src/app/components/tasks/task-list --standalone=false
 
 # Service
-npx nx g @nx/angular:service apps/dashboard/src/app/services/task
+npx nx g @nx/angular:service task --project=dashboard --path=apps/dashboard/src/app/services
 
 # Guard
 npx nx g @nx/angular:guard apps/dashboard/src/app/guards/auth
@@ -434,10 +434,10 @@ npm run db:reset
 #### Creating a New Component (e.g., Login)
 ```bash
 # 1. Generate the component in a specific folder structure
-npm run g:component apps/dashboard/src/app/components/auth/login -- --standalone=false --style=scss --module=apps/dashboard/src/app/app.module.ts
+npx nx g @nx/angular:component apps/dashboard/src/app/components/auth/login --standalone=false --style=scss
 
 # 2. Generate a service for authentication
-npm run g:service apps/dashboard/src/app/services/auth
+npx nx g @nx/angular:service auth --project=dashboard --path=apps/dashboard/src/app/services
 
 # 3. Start the dev server to see it
 npm run dev:dashboard

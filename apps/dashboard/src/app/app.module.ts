@@ -7,8 +7,8 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/auth/login.component';
-import { appRoutes } from './app.routes';
 import { TaskDashboardComponent } from './components/dashboard/task-dashboard.component';
+import { appRoutes } from './app.routes';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, TaskDashboardComponent],
