@@ -1,0 +1,19 @@
+{
+  "name": "data",
+  "sourceRoot": "libs/data/src",
+  "projectType": "library",
+  "tags": ["shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/data",
+        "tsConfig": "libs/data/tsconfig.lib.json",
+        "packageJson": "libs/data/package.json",
+        "main": "libs/data/src/index.ts",
+        "assets": ["libs/data/*.md"]
+      }
+    }
+  }
+}

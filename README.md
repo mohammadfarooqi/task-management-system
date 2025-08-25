@@ -328,6 +328,9 @@ npm run build:api
 
 # Build the dashboard
 npm run build:dashboard
+
+# Build the data library
+npm run build:data
 ```
 
 #### Running Production Build
@@ -351,12 +354,10 @@ npm test
 npm run test:api          # API tests (backend)
 npm run test:dashboard    # Dashboard tests (frontend - includes component and service tests)
 npm run test:auth         # Auth library tests
+# Note: Data library has no test target
 
 # Run tests with coverage
 npm run test:coverage
-
-# Test only affected projects (based on git changes)
-npm run test:affected
 ```
 
 #### Frontend Test Coverage
@@ -413,6 +414,8 @@ npm run lint
 # Lint specific project
 npm run lint:api
 npm run lint:dashboard
+npm run lint:auth
+npm run lint:data
 
 # Auto-fix linting issues
 npm run lint:fix

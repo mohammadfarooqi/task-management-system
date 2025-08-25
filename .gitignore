@@ -44,7 +44,7 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 # Database files
-data/
+/data/
 *.sqlite
 *.sqlite3
 *.db
