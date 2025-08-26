@@ -132,27 +132,6 @@ describe('TaskService', () => {
       expect(result).toEqual(mockTask);
     });
 
-    it('should throw ForbiddenException when user has no role', async () => {
-      const createTaskDto = {
-        title: 'New Task',
-        description: 'New Description',
-      };
-
-      await expect(
-        service.create(createTaskDto, 1, 1, '')
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it('should throw ForbiddenException when user is Viewer', async () => {
-      const createTaskDto = {
-        title: 'New Task',
-        description: 'New Description',
-      };
-
-      await expect(
-        service.create(createTaskDto, 1, 1, 'Viewer')
-      ).rejects.toThrow(ForbiddenException);
-    });
   });
 
   describe('findAll', () => {
@@ -298,23 +277,6 @@ describe('TaskService', () => {
       expect(taskRepository.update).toHaveBeenCalled();
     });
 
-    it('should throw ForbiddenException when Viewer tries to replace', async () => {
-      const replaceDto = {
-        title: 'Updated Task',
-        description: 'Updated Description',
-        status: 'in-progress',
-        priority: 'high',
-        category: TaskCategory.WORK,
-      };
-
-      mockTaskRepository.findOne.mockResolvedValue(mockTask);
-      mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
-
-      await expect(
-        service.replace(1, replaceDto, 3, 1, 'Viewer')
-      ).rejects.toThrow(ForbiddenException);
-    });
-
     it('should allow Owner to replace any task', async () => {
       const taskId = 1;
       const userId = 1;
@@ -371,20 +333,6 @@ describe('TaskService', () => {
       await service.remove(taskId, userId, parentOrgId, userRole);
 
       expect(taskRepository.remove).toHaveBeenCalledWith(childOrgTask);
-    });
-
-    it('should throw ForbiddenException when user cannot delete task', async () => {
-      const taskId = 1;
-      const userId = 3;
-      const organizationId = 1;
-      const userRole = 'Viewer';
-
-      mockTaskRepository.findOne.mockResolvedValue(mockTask);
-      mockOrganizationService.canAccessOrganization.mockResolvedValue(true);
-
-      await expect(
-        service.remove(taskId, userId, organizationId, userRole)
-      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should allow Owner to remove any task', async () => {

@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, Request, ForbiddenException, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { OrganizationService } from '../services/organization.service';
 import { CreateUserDto, ApiResponse, RoleType } from '@task-management-system/data';
+import { Roles, RolesGuard } from '@task-management-system/auth';
 
 @Controller('users')
 export class UserController {
@@ -11,6 +12,8 @@ export class UserController {
   ) {}
 
   @Post()
+  @Roles(RoleType.SYSTEM_ADMIN, RoleType.OWNER, RoleType.ADMIN)
+  @UseGuards(RolesGuard)
   async createUser(
     @Body() createUserDto: CreateUserDto,
     @Request() req: any
@@ -21,9 +24,12 @@ export class UserController {
       const targetOrgId = createUserDto.organizationId;
       const targetRole = createUserDto.roleType || RoleType.VIEWER;
 
-      // Check if Viewer (they can't create users)
+      // Viewer check is now handled by @Roles decorator, but keep as defense in depth
       if (requesterRole === RoleType.VIEWER) {
-        throw new ForbiddenException('Viewers cannot create users');
+        return {
+          success: false,
+          message: 'Viewers cannot create users',
+        };
       }
 
       // Check if trying to create in same org

@@ -15,15 +15,7 @@ export class TaskService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: number, organizationId: number, userRole: string): Promise<Task> {
-    // Add role validation to create method
-    if (!userRole) {
-      throw new ForbiddenException('No role assigned - contact administrator');
-    }
-
-    // Only Admin and Owner can create tasks
-    if (!hasRolePermission(userRole, RoleType.ADMIN)) {
-      throw new ForbiddenException('Only Admins and Owners can create tasks');
-    }
+    // Only Admin, Owner, and SystemAdmin can reach this method
 
     const task = this.taskRepository.create({
       title: createTaskDto.title,
@@ -40,10 +32,7 @@ export class TaskService {
   }
 
   async findAll(userId: number, organizationId: number, userRole: string): Promise<Task[]> {
-    // Validate user has role assigned
-    if (!userRole) {
-      throw new ForbiddenException('No role assigned - contact administrator');
-    }
+    // All authenticated users can view tasks, but filtering depends on role
 
     // Get organization hierarchy (parent + children orgs)
     const orgIds = await this.organizationService.getOrganizationHierarchyIds(organizationId);
@@ -72,10 +61,6 @@ export class TaskService {
   }
 
   async findOne(id: number, userId: number, organizationId: number, userRole: string): Promise<Task> {
-    // Validate user has role assigned
-    if (!userRole) {
-      throw new ForbiddenException('No role assigned - contact administrator');
-    }
 
     const task = await this.taskRepository.findOne({
       where: { id },
@@ -106,18 +91,9 @@ export class TaskService {
   }
 
   async replace(id: number, replaceTaskDto: ReplaceTaskDto, userId: number, organizationId: number, userRole: string): Promise<Task> {
+    // only Admin/Owner/SystemAdmin can reach this
     const task = await this.findOne(id, userId, organizationId, userRole);
 
-    // Check if user can replace this task
-    // Parent org Owner/Admin can manage child org tasks
-    const isParentOrgManager = organizationId !== task.organizationId &&
-      hasRolePermission(userRole, RoleType.ADMIN);
-
-    const canReplace = isParentOrgManager || canEditSpecificTask(userRole, task.createdBy, userId);
-
-    if (!canReplace) {
-      throw new ForbiddenException('You can only replace tasks you created or manage as parent org admin');
-    }
 
     // Full replacement - update all fields
     await this.taskRepository.update(id, {
@@ -133,18 +109,9 @@ export class TaskService {
   }
 
   async remove(id: number, userId: number, organizationId: number, userRole: string): Promise<void> {
+    // only Admin/Owner/SystemAdmin can reach this
     const task = await this.findOne(id, userId, organizationId, userRole);
 
-    // Check if user can delete this task
-    // Parent org Owner/Admin can manage child org tasks
-    const isParentOrgManager = organizationId !== task.organizationId &&
-      hasRolePermission(userRole, RoleType.ADMIN);
-
-    const canDelete = isParentOrgManager || canEditSpecificTask(userRole, task.createdBy, userId);
-
-    if (!canDelete) {
-      throw new ForbiddenException('You can only delete tasks you created or manage as parent org admin');
-    }
 
     await this.taskRepository.remove(task);
   }

@@ -23,17 +23,18 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user) {
-      throw new ForbiddenException('User not authenticated');
-    }
+    const userRole = user?.role;
 
-    // Get the user's single role from JWT
-    const userRole = user.role;
-
+    // If no user or no role, throw with appropriate message
     if (!userRole) {
       throw new ForbiddenException(
-        `Access denied. No role found for user.`
+        `User role ${userRole} is not authorized. Required roles: ${requiredRoles.join(', ')}`
       );
+    }
+
+    // SystemAdmin has access to everything
+    if (userRole === 'SystemAdmin') {
+      return true;
     }
 
     // Check if user's role matches any of the required roles
@@ -45,7 +46,7 @@ export class RolesGuard implements CanActivate {
 
     if (!hasRequiredPermission) {
       throw new ForbiddenException(
-        `Access denied. Required roles: ${requiredRoles.join(', ')}. Your role: ${userRole}`
+        `User role ${userRole} is not authorized. Required roles: ${requiredRoles.join(', ')}`
       );
     }
 

@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   Request,
-  ParseIntPipe
+  ParseIntPipe,
+  UseGuards
 } from '@nestjs/common';
 import { TaskService } from '../services/task.service';
 import { AuditService } from '../services/audit.service';
-import { CreateTaskDto, ReplaceTaskDto } from '@task-management-system/data';
+import { CreateTaskDto, ReplaceTaskDto, RoleType } from '@task-management-system/data';
+import { Roles, RolesGuard } from '@task-management-system/auth';
 
 @Controller('tasks')
 export class TaskController {
@@ -21,6 +23,8 @@ export class TaskController {
   ) {}
 
   @Post()
+  @Roles(RoleType.SYSTEM_ADMIN, RoleType.OWNER, RoleType.ADMIN)
+  @UseGuards(RolesGuard)
   async create(@Body() createTaskDto: CreateTaskDto, @Request() req: any) {
     const task = await this.taskService.create(
       createTaskDto,
@@ -101,6 +105,8 @@ export class TaskController {
   }
 
   @Put(':id')
+  @Roles(RoleType.SYSTEM_ADMIN, RoleType.OWNER, RoleType.ADMIN)
+  @UseGuards(RolesGuard)
   async replace(
     @Param('id', ParseIntPipe) id: number,
     @Body() replaceTaskDto: ReplaceTaskDto,
@@ -137,6 +143,8 @@ export class TaskController {
   }
 
   @Delete(':id')
+  @Roles(RoleType.SYSTEM_ADMIN, RoleType.OWNER, RoleType.ADMIN)
+  @UseGuards(RolesGuard)
   async remove(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     // get task info before deletion for logging
     const task = await this.taskService.findOne(

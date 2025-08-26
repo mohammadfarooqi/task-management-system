@@ -378,5 +378,21 @@ describe('UserController', () => {
         );
       });
     });
+
+    describe('Role decorator enforcement', () => {
+      it('should have @Roles decorator on createUser method', () => {
+        const createUserMetadata = Reflect.getMetadata('roles', controller.createUser);
+        expect(createUserMetadata).toBeDefined();
+        expect(createUserMetadata).toContain(RoleType.SYSTEM_ADMIN);
+        expect(createUserMetadata).toContain(RoleType.OWNER);
+        expect(createUserMetadata).toContain(RoleType.ADMIN);
+      });
+
+      it('should NOT include VIEWER role in @Roles decorator', () => {
+        const createUserMetadata = Reflect.getMetadata('roles', controller.createUser);
+        expect(createUserMetadata).toBeDefined();
+        expect(createUserMetadata).not.toContain(RoleType.VIEWER);
+      });
+    });
   });
 });

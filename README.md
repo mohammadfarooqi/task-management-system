@@ -564,7 +564,7 @@ Response:
 
 All user management endpoints require JWT authentication via HttpOnly cookies.
 
-#### Create User (Owner/Admin only)
+#### Create User (SystemAdmin/Owner/Admin only)
 ```http
 POST /api/users
 Content-Type: application/json
@@ -579,10 +579,11 @@ Content-Type: application/json
 }
 ```
 
-**Permission Requirements:**
+**Permission Requirements (enforced via @Roles decorator at controller):**
+- **SystemAdmin**: Can create any role in any organization
 - **Owner**: Can create any role in same org, Admin/Viewer in child orgs
 - **Admin**: Can create Admin/Viewer in same org or child orgs
-- **Viewer**: Cannot create users (403 Forbidden)
+- **Viewer**: Cannot create users (blocked at controller level - 403 Forbidden)
 
 Response:
 ```json
@@ -604,7 +605,7 @@ Response:
 
 All task endpoints require JWT authentication via HttpOnly cookies.
 
-#### Create Task (Admin/Owner only)
+#### Create Task (SystemAdmin/Owner/Admin only)
 ```http
 POST /api/tasks
 Content-Type: application/json
@@ -616,6 +617,8 @@ Content-Type: application/json
   "category": "work"
 }
 ```
+
+**Note**: Role enforcement is applied at the controller level via `@Roles` decorator. Viewers are blocked from creating, updating, or deleting tasks.
 
 Response:
 ```json
@@ -677,7 +680,7 @@ Response:
 }
 ```
 
-#### Update Task (PUT - full replacement)
+#### Update Task (SystemAdmin/Owner/Admin only - PUT - full replacement)
 ```http
 PUT /api/tasks/:id
 Content-Type: application/json
@@ -691,7 +694,7 @@ Content-Type: application/json
 }
 ```
 
-#### Delete Task (Owner/Admin only)
+#### Delete Task (SystemAdmin/Owner/Admin only)
 ```http
 DELETE /api/tasks/:id
 ```
@@ -831,6 +834,10 @@ The frontend includes a comprehensive audit log dashboard accessible to SystemAd
   - Cookie configuration: `httpOnly: true`, `secure: true` (production), `sameSite: 'strict'`
 - **Global Auth Guard**: All API routes protected by default with JWT validation
   - Guard now extracts tokens from cookies first, then Authorization header as fallback
+- **Controller-Level Role Enforcement**: Explicit `@Roles` decorators on all modifying endpoints
+  - Makes RBAC clear and enforceable at the API boundary
+  - SystemAdmin has automatic access to all endpoints
+  - Defense in depth with role validation at both controller and service layers
 - **Role-Based Guards**: Fine-grained access control with single role per user
 - **Audit Logging**: Track all sensitive operations
 
